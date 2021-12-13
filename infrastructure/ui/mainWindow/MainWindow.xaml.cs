@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
@@ -37,6 +38,12 @@ namespace TimeClock
                 this.Hide();
 
             base.OnStateChanged(e);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            e.Cancel = true;
+            this.Hide();
         }
     }
 }
