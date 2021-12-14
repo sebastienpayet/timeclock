@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace TimeClock.ViewModel
 {
@@ -35,24 +36,24 @@ namespace TimeClock.ViewModel
             LoadEmployeesCommand = new RelayCommand(LoadEmployeesMethod);
             this.DateTime = DateTime.Now;
             this.startTime = DateTime.Now;
-            Timer bg = new Timer();
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(1);
 
-            bg.Tick += (s, e) => { 
+            timer.Tick += (s, e) => { 
                 this.DateTime = DateTime.Now;
                 this.TimeCounter = BuildTimeCounter();
             };
             //définition de l'interval en ms (333 trois fois par minutes c'est suffisant pour que l'utilisateur ne remarque pas la différence)
             //avec l'heure system, mais à modifier selon ta précision et la performance...
-            bg.Interval = 500;
+            timer.Interval = TimeSpan.FromSeconds(1);
             //lancement de l'affichage de l'heure.
-            bg.Start();
+            timer.Start();
         }
 
         private string BuildTimeCounter()
         {
             TimeSpan interval = DateTime.Now - this.startTime;
             return string.Format("{0:D2}:{1:D2}:{2:D2}", interval.Hours, interval.Minutes, interval.Seconds);
-           // return interval.ToString("");
         }
 
         public string TimeCounter
