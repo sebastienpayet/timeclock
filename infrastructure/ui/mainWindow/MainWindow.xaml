@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TimeClock"
         mc:Ignorable="d"
-        Title="Timeclock" Height="391.208" Width="289.56" DataContext="{Binding MainViewModel, Source={StaticResource Locator}}" VerticalAlignment="Center" HorizontalAlignment="Center" ResizeMode="CanMinimize" Topmost="True" WindowStartupLocation="Manual" ShowInTaskbar="False" WindowStyle="ThreeDBorderWindow">
+        Title="TimeClock" Height="391.208" Width="289.56" DataContext="{Binding MainViewModel, Source={StaticResource Locator}}" VerticalAlignment="Center" HorizontalAlignment="Center" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="Manual" ShowInTaskbar="False" WindowStyle="ThreeDBorderWindow">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>
     <Grid VerticalAlignment="Top" Height="350" Margin="0,0,-2,0">
 
         <Button Content="Exporter les données" Command="{Binding LoadEmployeesCommand}" Margin="43,315,43,10" HorizontalContentAlignment="Center" />
-        <Label x:Name="label_time_total_day" Content="Temps total du jour :" Margin="10,10,10,294" FontSize="20" Background="#FF4EBDA4" FontFamily="Noto Mono" Grid.ColumnSpan="2"/>
-        <Label x:Name="time_total_day" Content="1 h 27 m 45 s" Height="46" Margin="10,61,10,0" VerticalAlignment="Top" FontSize="20" FontFamily="Noto Mono" Foreground="#FF068339" FontWeight="Bold" Grid.ColumnSpan="2"/>
-        <Label x:Name="label_time_total_session" Content="Temps de la session :" Height="46" Margin="10,97,10,0" VerticalAlignment="Top" FontSize="20" Background="#FF4E7BBD" FontFamily="Noto Mono" Grid.ColumnSpan="2"/>
-        <Label x:Name="time_total_session" Content="1 h 27 m 45 s" Height="46" Margin="10,148,10,0" VerticalAlignment="Top" FontSize="20" FontFamily="Noto Mono" Foreground="#FF4E7BBD" FontWeight="Bold" Grid.ColumnSpan="2"/>
-        <Image Margin="88,199,87,40" Source="play-button.png" Cursor="Hand"/>
+        <Label x:Name="label_time_total_day" Content="Durée du jour" Margin="10,10,10,294" FontSize="20" Background="#FF4EBDA4" FontFamily="Noto Mono" Grid.ColumnSpan="2"/>
+        <Label x:Name="time_total_day" Content="{Binding TimeCounter}" Height="31" Margin="10,61,10,0" VerticalAlignment="Top" FontSize="20" FontFamily="Noto Mono" Foreground="#FF068339" FontWeight="Bold"/>
+        <Label x:Name="label_time_total_session" Content="Durée de la session" Height="46" Margin="10,97,10,0" VerticalAlignment="Top" FontSize="20" Background="#FF4E7BBD" FontFamily="Noto Mono" Grid.ColumnSpan="2"/>
+        <Label x:Name="time_total_session" Content="{Binding DateTime}" ContentStringFormat="dd/MM/yy HH:mm:ss" Height="35" Margin="10,143,10,0" VerticalAlignment="Top" FontSize="20" FontFamily="Noto Mono" Foreground="#FF4E7BBD" FontWeight="Bold"/>
+        <Image Margin="88,183,87,56" Source="play-button.png" Cursor="Hand"/>
     </Grid>
 </Window>
