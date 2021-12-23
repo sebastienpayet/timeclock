@@ -24,6 +24,7 @@ namespace TimeClock
             //rkApp.SetValue("StartupWithWindows", System.Reflection.Assembly.GetExecutingAssembly().Location);
             // rkApp.DeleteValue("StartupWithWindows");
 
+          
             SetWindowLocation();
             SetNotificationIcon();
         }

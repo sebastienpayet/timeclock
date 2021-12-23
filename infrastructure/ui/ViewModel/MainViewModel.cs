@@ -13,25 +13,14 @@ using TimeClock.business.useCase.stopAWorkSession;
 
 namespace TimeClock.infrastructure.ui.ViewModel
 {
-    /// <summary>
-    /// This class contains properties that the main View can data bind to.
-    /// <para>
-    /// Use the <strong>mvvminpc</strong> snippet to add bindable properties to this ViewModel.
-    /// </para>
-    /// <para>
-    /// You can also use Blend to data bind with the tool's support.
-    /// </para>
-    /// <para>
-    /// See http://www.galasoft.ch/mvvm
-    /// </para>
-    /// </summary>
     public class MainViewModel : ViewModelBase, INotifyPropertyChanged
     {
         public ICommand LoadEmployeesCommand { get; private set; }
         public ICommand SwitchTimerCommand { get; private set; }
+        public ICommand WindowClosingCommand { get { return new RelayCommand<EventArgs>(ApplicationClosingMethod); } }
 
-        public String SwitchButtonImageUri { get; private set; }
-        public bool isTimerRunning { get; private set; }
+        public string SwitchButtonImageUri { get; private set; }
+        public bool IsTimerRunning { get; private set; }
 
         // CDI
         public StartAWorkSession _startAWorkSession { get; private set; }
@@ -40,16 +29,12 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         private const string PAUSE_IMAGE = "pause-button.png";
         private const string PLAY_IMAGE = "play-button.png";
+        private DateTime sessionStartTime;
+        private string currentSessionTimer;
+        private string daySessionsTimer;
+        private readonly DispatcherTimer timer;
 
-        DateTime sessionStartTime;
-        string currentSessionTimer;
-        string daySessionsTimer;
-
-
-
-        DispatcherTimer timer;
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        public new event PropertyChangedEventHandler PropertyChanged;
 
         public MainViewModel(
                 StartAWorkSession startAWorkSession,
@@ -67,10 +52,10 @@ namespace TimeClock.infrastructure.ui.ViewModel
             SwitchTimerCommand = new RelayCommand(SwitchTimerMethod);
 
             // start values
-            isTimerRunning = false;
+            IsTimerRunning = false;
             SwitchButtonImageUri = PLAY_IMAGE;
 
-            timer = buildTimer();
+            timer = BuildTimer();
 
             Application.Current.Dispatcher.Invoke(
             DispatcherPriority.ApplicationIdle,
@@ -80,7 +65,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
             }));
         }
 
-        private DispatcherTimer buildTimer()
+        private DispatcherTimer BuildTimer()
         {
             DispatcherTimer timer = new DispatcherTimer();
             timer.Tick += (s, e) =>
@@ -104,10 +89,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
                 {
                     currentSessionTimer = value;
 
-                    if (PropertyChanged != null)
-                    {
-                        PropertyChanged(this, new PropertyChangedEventArgs("CurrentSessionTimer"));
-                    }
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSessionTimer"));
                 }
             }
             get
@@ -148,8 +130,8 @@ namespace TimeClock.infrastructure.ui.ViewModel
         private void SwitchTimerMethod()
         {
             
-            isTimerRunning = !isTimerRunning;
-            if (isTimerRunning)
+            IsTimerRunning = !IsTimerRunning;
+            if (IsTimerRunning)
             {
                 WorkSession session = _startAWorkSession.Handle(new StartAWorkSessionCommand());
                 sessionStartTime = session.Date;
@@ -164,6 +146,15 @@ namespace TimeClock.infrastructure.ui.ViewModel
                 DaySessionsTimer = BuildTimerString(_getSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             }
             PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
+        }
+      
+        private void ApplicationClosingMethod(EventArgs obj)
+        {
+            if (IsTimerRunning)
+            {
+                _stopAWorkSession.Handle(new StopAWorkSessionCommand());
+                MessageBox.Show("Votre session de travail en cours vient d'être terminée.");
+            }  
         }
     }
 }
