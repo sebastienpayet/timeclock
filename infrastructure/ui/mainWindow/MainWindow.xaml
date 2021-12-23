@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TimeClock"
         mc:Ignorable="d"
-        Title="TimeClock" Height="398" Width="490" DataContext="{Binding MainViewModel, Source={StaticResource Locator}}" VerticalAlignment="Center" HorizontalAlignment="Center" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="Manual" ShowInTaskbar="False" WindowStyle="ThreeDBorderWindow">
+        Title="TimeClock" Height="398" Width="290" DataContext="{Binding MainViewModel, Source={StaticResource Locator}}" VerticalAlignment="Center" HorizontalAlignment="Center" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="Manual" ShowInTaskbar="False" WindowStyle="ThreeDBorderWindow">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>

@@ -77,7 +77,7 @@ namespace TimeClock.ViewModel
             }
         }
 
-    
+
         private void NotifyUserMethod(NotificationMessage message)
         {
             MessageBox.Show(message.Notification);
