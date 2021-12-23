@@ -25,7 +25,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>2</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -110,10 +110,15 @@
     <Compile Include="business\model\workSession\WorkSessionType.cs" />
     <Compile Include="business\port\repository\IRepository.cs" />
     <Compile Include="business\port\repository\IWorkSessionRepository.cs" />
+    <Compile Include="business\useCase\getSessionsTimeForADay\GetSessionsTimeForADayCommand.cs" />
+    <Compile Include="business\useCase\getSessionsTimeForADay\GetSessionsTimeForADay.cs" />
     <Compile Include="business\useCase\ICommand.cs" />
     <Compile Include="business\useCase\IUseCase.cs" />
     <Compile Include="business\useCase\startAWorkSession\StartAWorkSession.cs" />
     <Compile Include="business\useCase\startAWorkSession\StartAWorkSessionCommand.cs" />
+    <Compile Include="business\useCase\stopAWorkSession\StopAWorkSession.cs" />
+    <Compile Include="business\useCase\stopAWorkSession\StopAWorkSessionCommand.cs" />
+    <Compile Include="infrastructure\repository\workSession\InMemoryWorkSessionRepository.cs" />
     <Compile Include="infrastructure\ui\ViewModel\MainViewModel.cs" />
     <Compile Include="infrastructure\ui\ViewModel\ViewModelLocator.cs" />
     <Page Include="infrastructure\ui\mainWindow\MainWindow.xaml">
@@ -175,5 +180,9 @@
   <ItemGroup>
     <Resource Include="Main.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="infrastructure\ui\mainWindow\pause-button.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

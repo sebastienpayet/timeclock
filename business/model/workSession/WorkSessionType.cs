@@ -1,6 +1,6 @@
 ﻿namespace TimeClock.business.model.workSession
 {
-    internal enum WorkSessionType
+    public enum WorkSessionType
     {
         START, 
         STOP

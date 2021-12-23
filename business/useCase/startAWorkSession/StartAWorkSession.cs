@@ -1,17 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TimeClock.business.model.workSession;
+﻿using TimeClock.business.model.workSession;
+using TimeClock.business.port.repository;
 
 namespace TimeClock.business.useCase.startAWorkSession
 {
-    class StartAWorkSession : IUseCase<WorkSession, StartAWorkSessionCommand>
+    public class StartAWorkSession : IUseCase<WorkSession, StartAWorkSessionCommand>
     {
+        private IWorkSessionRepository _workSessionRepository;
+
+        public StartAWorkSession(IWorkSessionRepository workSessionRepository)
+        {
+            _workSessionRepository = workSessionRepository;
+        }
+
         public WorkSession Handle(StartAWorkSessionCommand command)
         {
-            throw new NotImplementedException();
+            WorkSession newSession = new WorkSession(WorkSessionType.START);
+            return _workSessionRepository.Save(newSession);
         }
     }
 }

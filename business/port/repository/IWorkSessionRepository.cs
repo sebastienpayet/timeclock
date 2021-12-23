@@ -4,7 +4,7 @@ using TimeClock.business.model.workSession;
 
 namespace TimeClock.business.port.repository
 {
-    internal interface IWorkSessionRepository : IRepository<WorkSession>
+    public interface IWorkSessionRepository : IRepository<WorkSession>
     {
         WorkSession FindLastOfTheDay(DateTime date);
         List<WorkSession> FindAllOfTheDay(DateTime date);

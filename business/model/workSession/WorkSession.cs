@@ -2,7 +2,7 @@
 
 namespace TimeClock.business.model.workSession
 {
-    class WorkSession
+    public class WorkSession
     {
 
         public WorkSessionType Type { get; private set; }
@@ -11,6 +11,7 @@ namespace TimeClock.business.model.workSession
         public WorkSession(WorkSessionType workSessionType)
         {
             this.Type = workSessionType;
+            this.Date = DateTime.Now;
         }
 
         public override bool Equals(object obj)

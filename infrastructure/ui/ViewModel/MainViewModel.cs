@@ -3,11 +3,15 @@ using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.ComponentModel;
-using System.Windows.Forms;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using TimeClock.business.model.workSession;
+using TimeClock.business.useCase.getSessionsTimeForADay;
+using TimeClock.business.useCase.startAWorkSession;
+using TimeClock.business.useCase.stopAWorkSession;
 
-namespace TimeClock.ViewModel
+namespace TimeClock.infrastructure.ui.ViewModel
 {
     /// <summary>
     /// This class contains properties that the main View can data bind to.
@@ -24,84 +28,142 @@ namespace TimeClock.ViewModel
     public class MainViewModel : ViewModelBase, INotifyPropertyChanged
     {
         public ICommand LoadEmployeesCommand { get; private set; }
+        public ICommand SwitchTimerCommand { get; private set; }
 
-        DateTime dateTime;
-        DateTime startTime;
-        String timeCounter;
+        public String SwitchButtonImageUri { get; private set; }
+        public bool isTimerRunning { get; private set; }
+
+        // CDI
+        public StartAWorkSession _startAWorkSession { get; private set; }
+        public StopAWorkSession _stopAWorkSession { get; private set; }
+        public GetSessionsTimeForADay _getSessionsTimeForADay { get; private set; }
+
+        private const string PAUSE_IMAGE = "pause-button.png";
+        private const string PLAY_IMAGE = "play-button.png";
+
+        DateTime sessionStartTime;
+        string currentSessionTimer;
+        string daySessionsTimer;
+
+
+
+        DispatcherTimer timer;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public MainViewModel()
+        public MainViewModel(
+                StartAWorkSession startAWorkSession,
+                StopAWorkSession stopAWorkSession,
+                GetSessionsTimeForADay getSessionsTimeForADay
+            )
         {
-            LoadEmployeesCommand = new RelayCommand(LoadEmployeesMethod);
-            this.DateTime = DateTime.Now;
-            this.startTime = DateTime.Now;
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(1);
+            _startAWorkSession = startAWorkSession;
+            _stopAWorkSession = stopAWorkSession;
+            _getSessionsTimeForADay = getSessionsTimeForADay;
 
-            timer.Tick += (s, e) => { 
-                this.DateTime = DateTime.Now;
-                this.TimeCounter = BuildTimeCounter();
-            };
-            //définition de l'interval en ms (333 trois fois par minutes c'est suffisant pour que l'utilisateur ne remarque pas la différence)
-            //avec l'heure system, mais à modifier selon ta précision et la performance...
-            timer.Interval = TimeSpan.FromSeconds(1);
-            //lancement de l'affichage de l'heure.
-            timer.Start();
+
+            // command relays
+            LoadEmployeesCommand = new RelayCommand(LoadEmployeesMethod);
+            SwitchTimerCommand = new RelayCommand(SwitchTimerMethod);
+
+            // start values
+            isTimerRunning = false;
+            SwitchButtonImageUri = PLAY_IMAGE;
+
+            timer = buildTimer();
+
+            Application.Current.Dispatcher.Invoke(
+            DispatcherPriority.ApplicationIdle,
+            new Action(() =>
+            {
+                DaySessionsTimer = BuildTimerString(_getSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
+            }));
         }
 
-        private string BuildTimeCounter()
+        private DispatcherTimer buildTimer()
         {
-            TimeSpan interval = DateTime.Now - this.startTime;
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Tick += (s, e) =>
+            {
+                CurrentSessionTimer = BuildTimerString(DateTime.Now - sessionStartTime);
+            };
+            timer.Interval = TimeSpan.FromMilliseconds(333);
+            return timer;
+        }
+
+        private string BuildTimerString(TimeSpan interval)
+        {
             return string.Format("{0:D2}:{1:D2}:{2:D2}", interval.Hours, interval.Minutes, interval.Seconds);
         }
 
-        public string TimeCounter
+        public string CurrentSessionTimer
         {
             set
             {
-                if (timeCounter != value)
+                if (currentSessionTimer != value)
                 {
-                    timeCounter = value;
+                    currentSessionTimer = value;
 
                     if (PropertyChanged != null)
                     {
-                        PropertyChanged(this, new PropertyChangedEventArgs("TimeCounter"));
+                        PropertyChanged(this, new PropertyChangedEventArgs("CurrentSessionTimer"));
                     }
                 }
             }
             get
             {
-                return timeCounter;
+                return currentSessionTimer;
             }
         }
 
-        public DateTime DateTime
+        public string DaySessionsTimer
         {
             set
             {
-                if (dateTime != value)
+                if (daySessionsTimer != value)
                 {
-                    dateTime = value;
+                    daySessionsTimer = value;
 
                     if (PropertyChanged != null)
                     {
-                        PropertyChanged(this, new PropertyChangedEventArgs("DateTime"));
+                        PropertyChanged(this, new PropertyChangedEventArgs("DaySessionsTimer"));
                     }
                 }
             }
             get
             {
-                return dateTime;
+                return daySessionsTimer;
             }
         }
 
         private void LoadEmployeesMethod()
         {
-            Messenger.Default.Send<NotificationMessage>(new NotificationMessage("Employees Loaded."));
+            Messenger.Default.Send(
+                new NotificationMessage(
+                    _startAWorkSession.Handle(new StartAWorkSessionCommand()).Date.ToString()
+                    )
+                );
         }
 
-
-
+        private void SwitchTimerMethod()
+        {
+            
+            isTimerRunning = !isTimerRunning;
+            if (isTimerRunning)
+            {
+                WorkSession session = _startAWorkSession.Handle(new StartAWorkSessionCommand());
+                sessionStartTime = session.Date;
+                timer.Start();
+                SwitchButtonImageUri = PAUSE_IMAGE;
+            }
+            else
+            {
+                _stopAWorkSession.Handle(new StopAWorkSessionCommand());
+                timer.Stop();
+                SwitchButtonImageUri = PLAY_IMAGE;
+                DaySessionsTimer = BuildTimerString(_getSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
+            }
+            PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
+        }
     }
 }

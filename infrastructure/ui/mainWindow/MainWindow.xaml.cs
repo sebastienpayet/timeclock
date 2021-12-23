@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight.Messaging;
+﻿using Microsoft.Win32;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,30 +12,26 @@ namespace TimeClock
     /// </summary>
     public partial class MainWindow : Window
     {
+        NotifyIcon notifyIcon;
+        ContextMenu contextMenu;
+
         public MainWindow()
         {
             InitializeComponent();
-            WindowStartupLocation = WindowStartupLocation.Manual;
-            Left = SystemParameters.WorkArea.Width - Width;
-            Top = SystemParameters.WorkArea.Height - Height;
 
-            Uri iconUri = new Uri("pack://application:,,,/Main.ico", UriKind.RelativeOrAbsolute);
+            // auto start configuration
+            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            //rkApp.SetValue("StartupWithWindows", System.Reflection.Assembly.GetExecutingAssembly().Location);
+            // rkApp.DeleteValue("StartupWithWindows");
 
-            var iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Main.ico"))?.Stream;
-            var ni = new NotifyIcon { Icon = new Icon(iconStream), Visible = true };
-
-            ni.DoubleClick +=
-                delegate (object sender, EventArgs args)
-                {
-                    this.Show();
-                    this.WindowState = WindowState.Normal;
-                };
+            SetWindowLocation();
+            SetNotificationIcon();
         }
 
         protected override void OnStateChanged(EventArgs e)
         {
             if (WindowState == WindowState.Minimized)
-                this.Hide();
+                Hide();
 
             base.OnStateChanged(e);
         }
@@ -43,7 +39,49 @@ namespace TimeClock
         protected override void OnClosing(CancelEventArgs e)
         {
             e.Cancel = true;
-            this.Hide();
+            Hide();
+        }
+
+        private void SetWindowLocation()
+        {
+            // first open windows location
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = SystemParameters.WorkArea.Width - Width;
+            Top = SystemParameters.WorkArea.Height - Height;
+        }
+
+        private void SetNotificationIcon()
+        {
+            // context menu setup
+            contextMenu = new ContextMenu();
+            contextMenu.MenuItems.Add("&Open");
+            contextMenu.MenuItems.Add("E&xit");
+            contextMenu.MenuItems[0].Click += delegate (object sender, EventArgs args)
+            {
+                Show();
+            };
+            contextMenu.MenuItems[1].Click += delegate (object sender, EventArgs args)
+            {
+                System.Windows.Application.Current.Shutdown();
+            };
+
+            // notifyIcon setup
+            Uri iconUri = new Uri("pack://application:,,,/Main.ico", UriKind.RelativeOrAbsolute);
+            var iconStream = System.Windows.Application.GetResourceStream(iconUri)?.Stream;
+            notifyIcon = new NotifyIcon
+            {
+                Icon = new Icon(iconStream),
+                Visible = true,
+                Text = "Right-click me!",
+                ContextMenu = contextMenu
+            };
+
+            notifyIcon.DoubleClick +=
+                delegate (object sender, EventArgs args)
+                {
+                    Show();
+                    WindowState = WindowState.Normal;
+                };
         }
     }
 }

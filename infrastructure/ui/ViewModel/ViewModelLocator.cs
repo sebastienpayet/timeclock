@@ -15,7 +15,15 @@
 using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
+using System;
+using System.Threading;
 using System.Windows;
+using TimeClock.business.port.repository;
+using TimeClock.business.useCase.getSessionsTimeForADay;
+using TimeClock.business.useCase.startAWorkSession;
+using TimeClock.business.useCase.stopAWorkSession;
+using TimeClock.infrastructure.repository.workSession;
+using TimeClock.infrastructure.ui.ViewModel;
 
 namespace TimeClock.ViewModel
 {
@@ -25,11 +33,21 @@ namespace TimeClock.ViewModel
     /// </summary>
     public class ViewModelLocator
     {
+        Mutex m;
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
         public ViewModelLocator()
         {
+            bool isnew;
+            m = new Mutex(true, "TimeClockInstance", out isnew);
+            if (!isnew)
+            {
+                MessageBox.Show("TimeClock est déjà en cours d'exécution.");
+                Environment.Exit(0);
+            }
+
+
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
             ////if (ViewModelBase.IsInDesignModeStatic)
@@ -43,7 +61,11 @@ namespace TimeClock.ViewModel
             ////    SimpleIoc.Default.Register<IDataService, DataService>();
             ////}
 
+            SimpleIoc.Default.Register<IWorkSessionRepository, InMemoryWorkSessionRepository>();
             SimpleIoc.Default.Register<MainViewModel>();
+            SimpleIoc.Default.Register<StartAWorkSession>();
+            SimpleIoc.Default.Register<StopAWorkSession>();
+            SimpleIoc.Default.Register<GetSessionsTimeForADay>();
             Messenger.Default.Register<NotificationMessage>(this, NotifyUserMethod);
         }
 
