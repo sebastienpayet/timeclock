@@ -18,10 +18,13 @@ using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Threading;
 using System.Windows;
+using TimeClock.business.port.exporter;
 using TimeClock.business.port.repository;
+using TimeClock.business.useCase.exportData;
 using TimeClock.business.useCase.getSessionsTimeForADay;
 using TimeClock.business.useCase.startAWorkSession;
 using TimeClock.business.useCase.stopAWorkSession;
+using TimeClock.infrastructure.exporter.excelExporter;
 using TimeClock.infrastructure.repository.workSession;
 using TimeClock.infrastructure.ui.ViewModel;
 
@@ -50,22 +53,17 @@ namespace TimeClock.ViewModel
 
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
-            ////if (ViewModelBase.IsInDesignModeStatic)
-            ////{
-            ////    // Create design time view services and models
-            ////    SimpleIoc.Default.Register<IDataService, DesignDataService>();
-            ////}
-            ////else
-            ////{
-            ////    // Create run time view services and models
-            ////    SimpleIoc.Default.Register<IDataService, DataService>();
-            ////}
-
+            // CDI configuration
+            // implementations
             SimpleIoc.Default.Register<IWorkSessionRepository, InMemoryWorkSessionRepository>();
+            SimpleIoc.Default.Register<IExporter, ExcelExporter>();
+            // uses cases
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<StartAWorkSession>();
             SimpleIoc.Default.Register<StopAWorkSession>();
             SimpleIoc.Default.Register<GetSessionsTimeForADay>();
+            SimpleIoc.Default.Register<ExportData>();
+            // utils
             Messenger.Default.Register<NotificationMessage>(this, NotifyUserMethod);
         }
 
