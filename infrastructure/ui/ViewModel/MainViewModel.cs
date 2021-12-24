@@ -18,17 +18,17 @@ namespace TimeClock.infrastructure.ui.ViewModel
         // command relays
         public ICommand ExportDataCommand { get; private set; }
         public ICommand SwitchTimerCommand { get; private set; }
-        public ICommand WindowClosingCommand { get { return new RelayCommand<EventArgs>(ApplicationClosingMethod); } }
+        public ICommand WindowClosingCommand => new RelayCommand<EventArgs>(ApplicationClosingMethod);
 
         public new event PropertyChangedEventHandler PropertyChanged;
         public string SwitchButtonImageUri { get; private set; }
         public bool IsTimerRunning { get; private set; }
 
         // CDI
-        public StartAWorkSession _startAWorkSession { get; private set; }
-        public StopAWorkSession _stopAWorkSession { get; private set; }
-        public GetSessionsTimeForADay _getSessionsTimeForADay { get; private set; }
-        public ExportData _exportData { get; private set; }
+        public StartAWorkSession StartAWorkSession { get; private set; }
+        public StopAWorkSession StopAWorkSession { get; private set; }
+        public GetSessionsTimeForADay GetSessionsTimeForADay { get; private set; }
+        public ExportData ExportData { get; private set; }
 
         private const string PAUSE_IMAGE = "pause-button.png";
         private const string PLAY_IMAGE = "play-button.png";
@@ -45,10 +45,10 @@ namespace TimeClock.infrastructure.ui.ViewModel
             )
         {
             // CDI init
-            _startAWorkSession = startAWorkSession;
-            _stopAWorkSession = stopAWorkSession;
-            _getSessionsTimeForADay = getSessionsTimeForADay;
-            _exportData = exportData;
+            StartAWorkSession = startAWorkSession;
+            StopAWorkSession = stopAWorkSession;
+            GetSessionsTimeForADay = getSessionsTimeForADay;
+            ExportData = exportData;
 
             // command relays
             ExportDataCommand = new RelayCommand(ExportDataMethod);
@@ -62,11 +62,11 @@ namespace TimeClock.infrastructure.ui.ViewModel
             timer = BuildTimer();
 
             // init current day timer value
-            Application.Current.Dispatcher.Invoke(
+            _ = Application.Current.Dispatcher.Invoke(
             DispatcherPriority.ApplicationIdle,
             new Action(() =>
             {
-                DaySessionsTimer = BuildTimerString(_getSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
+                DaySessionsTimer = BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             }));
         }
 
@@ -97,10 +97,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentSessionTimer"));
                 }
             }
-            get
-            {
-                return currentSessionTimer;
-            }
+            get => currentSessionTimer;
         }
 
         public string DaySessionsTimer
@@ -111,21 +108,15 @@ namespace TimeClock.infrastructure.ui.ViewModel
                 {
                     daySessionsTimer = value;
 
-                    if (PropertyChanged != null)
-                    {
-                        PropertyChanged(this, new PropertyChangedEventArgs("DaySessionsTimer"));
-                    }
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DaySessionsTimer"));
                 }
             }
-            get
-            {
-                return daySessionsTimer;
-            }
+            get => daySessionsTimer;
         }
 
         private void ExportDataMethod()
         {
-            _exportData.Handle(new ExportDataCommand(DateTime.Now));
+            _ = ExportData.Handle(new ExportDataCommand(DateTime.Now));
         }
 
         private void SwitchTimerMethod()
@@ -134,17 +125,17 @@ namespace TimeClock.infrastructure.ui.ViewModel
             IsTimerRunning = !IsTimerRunning;
             if (IsTimerRunning)
             {
-                WorkSession session = _startAWorkSession.Handle(new StartAWorkSessionCommand());
+                WorkSession session = StartAWorkSession.Handle(new StartAWorkSessionCommand());
                 sessionStartTime = session.Date;
                 timer.Start();
                 SwitchButtonImageUri = PAUSE_IMAGE;
             }
             else
             {
-                _stopAWorkSession.Handle(new StopAWorkSessionCommand());
+                _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
                 timer.Stop();
                 SwitchButtonImageUri = PLAY_IMAGE;
-                DaySessionsTimer = BuildTimerString(_getSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
+                DaySessionsTimer = BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             }
             PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
         }
@@ -153,8 +144,8 @@ namespace TimeClock.infrastructure.ui.ViewModel
         {
             if (IsTimerRunning)
             {
-                _stopAWorkSession.Handle(new StopAWorkSessionCommand());
-                MessageBox.Show("Votre session de travail en cours vient d'être terminée.");
+                _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
+                _ = MessageBox.Show("Votre session de travail en cours vient d'être terminée.", "TimeClock");
             }
         }
     }

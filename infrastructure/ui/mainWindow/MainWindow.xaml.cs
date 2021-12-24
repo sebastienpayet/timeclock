@@ -55,8 +55,8 @@ namespace TimeClock
         {
             // context menu setup
             contextMenu = new ContextMenu();
-            contextMenu.MenuItems.Add("&Open");
-            contextMenu.MenuItems.Add("E&xit");
+            contextMenu.MenuItems.Add("&Ouvrir");
+            contextMenu.MenuItems.Add("&Quitter");
             contextMenu.MenuItems[0].Click += delegate (object sender, EventArgs args)
             {
                 Show();
@@ -73,7 +73,7 @@ namespace TimeClock
             {
                 Icon = new Icon(iconStream),
                 Visible = true,
-                Text = "Right-click me!",
+                Text = "TimeClock",
                 ContextMenu = contextMenu
             };
 

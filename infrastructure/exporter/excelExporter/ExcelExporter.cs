@@ -24,9 +24,10 @@ namespace TimeClock.infrastructure.exporter.excelExporter
             // Lets converts our object data to Datatable for a simplified logic.
             // Datatable is most easy way to deal with complex datatypes for easy reading and formatting.
             DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(persons), typeof(DataTable));
-            MemoryStream memoryStream = new MemoryStream();
+            string filePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeClock\\Result.xlsx";
+            _ = Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-            using (FileStream fs = new FileStream("Result.xlsx", FileMode.Create, FileAccess.Write))
+            using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 IWorkbook workbook = new XSSFWorkbook();
                 ISheet excelSheet = workbook.CreateSheet("Sheet1");
