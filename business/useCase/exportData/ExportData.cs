@@ -13,7 +13,7 @@ namespace TimeClock.business.useCase.exportData
 
         public string Handle(ExportDataCommand command)
         {
-            this._exporter.ExportFromAReferenceDate(command.Date);
+            _exporter.ExportFromAReferenceDate(command.Date);
             return "export started";
         }
     }

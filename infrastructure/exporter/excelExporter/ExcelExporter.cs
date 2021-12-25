@@ -4,6 +4,7 @@ using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using TimeClock.business.port.exporter;
 
@@ -24,14 +25,17 @@ namespace TimeClock.infrastructure.exporter.excelExporter
             // Lets converts our object data to Datatable for a simplified logic.
             // Datatable is most easy way to deal with complex datatypes for easy reading and formatting.
             DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(persons), typeof(DataTable));
-            string filePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeClock\\Result.xlsx";
+            string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeClock";
+            string filePath = folderPath + "\\Result.xlsx";
             _ = Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
             using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 IWorkbook workbook = new XSSFWorkbook();
+                
                 ISheet excelSheet = workbook.CreateSheet("Sheet1");
-
+                excelSheet.ProtectSheet("password");
+              
                 List<string> columns = new List<string>();
                 IRow row = excelSheet.CreateRow(0);
                 int columnIndex = 0;
@@ -58,6 +62,14 @@ namespace TimeClock.infrastructure.exporter.excelExporter
                 }
                 workbook.Write(fs);
             }
+
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                Arguments = folderPath,
+                FileName = "explorer.exe"
+            };
+
+            _ = Process.Start(startInfo);
         }
     }
 }
