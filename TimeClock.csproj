@@ -161,6 +161,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="infrastructure\util\SystemUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -209,6 +210,8 @@
   <ItemGroup>
     <Resource Include="infrastructure\ui\mainWindow\pause-button.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\button-15.wav" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

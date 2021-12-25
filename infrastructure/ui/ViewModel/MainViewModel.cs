@@ -2,8 +2,9 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Media;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -12,22 +13,16 @@ using TimeClock.business.useCase.exportData;
 using TimeClock.business.useCase.getSessionsTimeForADay;
 using TimeClock.business.useCase.startAWorkSession;
 using TimeClock.business.useCase.stopAWorkSession;
+using TimeClock.infrastructure.util;
 
 namespace TimeClock.infrastructure.ui.ViewModel
 {
 
-    internal struct LASTINPUTINFO
-    {
-        public uint cbSize;
-
-        public uint dwTime;
-    }
-
     public class MainViewModel : ViewModelBase, INotifyPropertyChanged
     {
         // command relays
-        public ICommand ExportDataCommand { get; private set; }
-        public ICommand SwitchTimerCommand { get; private set; }
+        public ICommand ExportDataCommand => new RelayCommand(ExportDataMethod);
+        public ICommand SwitchTimerCommand => new RelayCommand(SwitchTimerMethod);
         public ICommand WindowClosingCommand => new RelayCommand<EventArgs>(ApplicationClosingMethod);
 
         public new event PropertyChangedEventHandler PropertyChanged;
@@ -42,7 +37,8 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         private const string PAUSE_IMAGE = "pause-button.png";
         private const string PLAY_IMAGE = "play-button.png";
-        private const int MAX_IDLE_TIME_IN_SECONDS = 10;
+        private const int MAX_IDLE_TIME_IN_SECONDS = 600;
+        private SoundPlayer SoundPlayer = new SoundPlayer(Properties.Resources.button_15);
 
         private DateTime sessionStartTime;
         private string currentSessionTimer;
@@ -62,10 +58,6 @@ namespace TimeClock.infrastructure.ui.ViewModel
             GetSessionsTimeForADay = getSessionsTimeForADay;
             ExportData = exportData;
 
-            // command relays
-            ExportDataCommand = new RelayCommand(ExportDataMethod);
-            SwitchTimerCommand = new RelayCommand(SwitchTimerMethod);
-
             // init start vars values
             IsTimerRunning = false;
             SwitchButtonImageUri = PLAY_IMAGE;
@@ -82,21 +74,6 @@ namespace TimeClock.infrastructure.ui.ViewModel
             }));
         }
 
-        [DllImport("User32.dll")]
-        private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
-
-        [DllImport("Kernel32.dll")]
-        private static extern uint GetLastError();
-
-        public static uint GetIdleTime()
-        {
-            LASTINPUTINFO lastInPut = new LASTINPUTINFO();
-            lastInPut.cbSize = (uint)Marshal.SizeOf(lastInPut);
-            GetLastInputInfo(ref lastInPut);
-
-            return (uint)((((Environment.TickCount & int.MaxValue) - (lastInPut.dwTime & int.MaxValue)) & int.MaxValue) / 1000);
-        }
-
         private DispatcherTimer BuildTimer()
         {
             DispatcherTimer timer = new DispatcherTimer();
@@ -105,11 +82,11 @@ namespace TimeClock.infrastructure.ui.ViewModel
                 CurrentSessionTimer = BuildTimerString(DateTime.Now - sessionStartTime);
 
                 // todo a nettoyer
-                if (IsTimerRunning && GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
+                if (IsTimerRunning && SystemUtil.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
                 {
                     StopSession();
                     IsTimerRunning = false;
-                    MessageBox.Show("Votre session de travail à été arrêtée pour cause d'inactivité.", "TimeClock");
+                    _ = MessageBox.Show("Votre session de travail à été arrêtée pour cause d'inactivité.", "TimeClock");
                 }
             };
             timer.Interval = TimeSpan.FromMilliseconds(333);
@@ -160,18 +137,23 @@ namespace TimeClock.infrastructure.ui.ViewModel
             IsTimerRunning = !IsTimerRunning;
             if (IsTimerRunning)
             {
-                WorkSession session = StartAWorkSession.Handle(new StartAWorkSessionCommand());
-                sessionStartTime = session.Date;
-                timer.Start();
-                SwitchButtonImageUri = PAUSE_IMAGE;
-                SystemSounds.Exclamation.Play();
-                PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
+                StartSession();
             }
             else
             {
                 StopSession();
             }
-            
+
+        }
+
+        private void StartSession()
+        {
+            WorkSession session = StartAWorkSession.Handle(new StartAWorkSessionCommand());
+            sessionStartTime = session.Date;
+            timer.Start();
+            SwitchButtonImageUri = PAUSE_IMAGE;
+            SoundPlayer.Play();
+            PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
         }
 
         private void StopSession()
@@ -181,14 +163,14 @@ namespace TimeClock.infrastructure.ui.ViewModel
             SwitchButtonImageUri = PLAY_IMAGE;
             DaySessionsTimer = BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
-            SystemSounds.Exclamation.Play();
+            SystemSounds.Beep.Play();
         }
 
         private void ApplicationClosingMethod(EventArgs obj)
         {
             if (IsTimerRunning)
             {
-               StopAWorkSession.Handle(new StopAWorkSessionCommand());
+                _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
                 _ = MessageBox.Show("Votre session de travail en cours vient d'être terminée.", "TimeClock");
             }
         }
