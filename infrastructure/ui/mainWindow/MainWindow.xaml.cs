@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
+using TimeClock.infrastructure.util;
 
 namespace TimeClock
 {
@@ -19,12 +20,10 @@ namespace TimeClock
         {
             InitializeComponent();
 
-            // auto start configuration
-            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            //rkApp.SetValue("StartupWithWindows", System.Reflection.Assembly.GetExecutingAssembly().Location);
-            // rkApp.DeleteValue("StartupWithWindows");
+            #if !DEBUG
+                SystemUtil.ConfigureAutoStart();
+            #endif
 
-          
             SetWindowLocation();
             SetNotificationIcon();
         }
