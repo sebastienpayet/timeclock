@@ -25,7 +25,7 @@ using TimeClock.business.useCase.getSessionsTimeForADay;
 using TimeClock.business.useCase.startAWorkSession;
 using TimeClock.business.useCase.stopAWorkSession;
 using TimeClock.infrastructure.exporter.excelExporter;
-using TimeClock.infrastructure.repository.workSession;
+using TimeClock.infrastructure.repository.inMemory.workSession;
 using TimeClock.infrastructure.ui.ViewModel;
 
 namespace TimeClock.ViewModel
@@ -36,17 +36,16 @@ namespace TimeClock.ViewModel
     /// </summary>
     public class ViewModelLocator
     {
-        Mutex m;
+        readonly Mutex mutex;
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
         public ViewModelLocator()
         {
-            bool isnew;
-            m = new Mutex(true, "TimeClockInstance", out isnew);
+            mutex = new Mutex(true, "TimeClockInstance", out bool isnew);
             if (!isnew)
             {
-                MessageBox.Show("TimeClock est déjà en cours d'exécution.");
+                _ = MessageBox.Show("TimeClock est déjà en cours d'exécution.");
                 Environment.Exit(0);
             }
 
@@ -78,12 +77,12 @@ namespace TimeClock.ViewModel
 
         private void NotifyUserMethod(NotificationMessage message)
         {
-            MessageBox.Show(message.Notification);
+            _ = MessageBox.Show(message.Notification);
         }
 
         public static void Cleanup()
         {
-            MessageBox.Show("test !");
+           // todo
         }
     }
 }

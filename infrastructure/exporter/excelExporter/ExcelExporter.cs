@@ -7,6 +7,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using TimeClock.business.port.exporter;
+using TimeClock.infrastructure.util;
 
 namespace TimeClock.infrastructure.exporter.excelExporter
 {
@@ -63,13 +64,7 @@ namespace TimeClock.infrastructure.exporter.excelExporter
                 workbook.Write(fs);
             }
 
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                Arguments = folderPath,
-                FileName = "explorer.exe"
-            };
-
-            _ = Process.Start(startInfo);
+            SystemUtil.OpenExplorerOnFolder(folderPath);
         }
     }
 }

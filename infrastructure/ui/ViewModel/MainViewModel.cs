@@ -2,9 +2,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Media;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -38,7 +36,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
         private const string PAUSE_IMAGE = "pause-button.png";
         private const string PLAY_IMAGE = "play-button.png";
         private const int MAX_IDLE_TIME_IN_SECONDS = 600;
-        private SoundPlayer SoundPlayer = new SoundPlayer(Properties.Resources.button_15);
+        private readonly SoundPlayer SoundPlayer = new SoundPlayer(Properties.Resources.button_15);
 
         private DateTime sessionStartTime;
         private string currentSessionTimer;

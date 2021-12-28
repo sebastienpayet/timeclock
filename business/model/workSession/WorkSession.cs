@@ -10,8 +10,8 @@ namespace TimeClock.business.model.workSession
 
         public WorkSession(WorkSessionType workSessionType)
         {
-            this.Type = workSessionType;
-            this.Date = DateTime.Now;
+            Type = workSessionType;
+            Date = DateTime.Now;
         }
 
         public override bool Equals(object obj)
@@ -23,10 +23,7 @@ namespace TimeClock.business.model.workSession
 
         public override int GetHashCode()
         {
-            int hashCode = -1250556434;
-            hashCode = hashCode * -1521134295 + Type.GetHashCode();
-            hashCode = hashCode * -1521134295 + Date.GetHashCode();
-            return hashCode;
+            return HashCode.Combine(Type, Date);
         }
     }
 }

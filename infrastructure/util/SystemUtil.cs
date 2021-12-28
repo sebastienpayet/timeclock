@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace TimeClock.infrastructure.util
@@ -37,6 +38,17 @@ namespace TimeClock.infrastructure.util
             rkApp.SetValue("StartupWithWindows", System.Reflection.Assembly.GetExecutingAssembly().Location);
             rkApp.DeleteValue("StartupWithWindows");
 
+        }
+
+        public static void OpenExplorerOnFolder(string folderPath)
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                Arguments = folderPath,
+                FileName = "explorer.exe"
+            };
+
+            _ = Process.Start(startInfo);
         }
     }
 }

@@ -4,7 +4,7 @@ namespace TimeClock.business.useCase.exportData
 {
     public class ExportData : IUseCase<string, ExportDataCommand>
     {
-        private IExporter _exporter;
+        private readonly IExporter _exporter;
 
         public ExportData(IExporter exporter)
         {

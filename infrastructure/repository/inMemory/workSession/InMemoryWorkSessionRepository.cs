@@ -4,17 +4,13 @@ using System.Linq;
 using TimeClock.business.model.workSession;
 using TimeClock.business.port.repository;
 
-namespace TimeClock.infrastructure.repository.workSession
+namespace TimeClock.infrastructure.repository.inMemory.workSession
 {
-
-    class InMemoryWorkSessionRepository : IWorkSessionRepository
+    public class InMemoryWorkSessionRepository : IWorkSessionRepository
     {
-        private List<WorkSession> _workSessions = new List<WorkSession>();
+        private readonly List<WorkSession> _workSessions = new List<WorkSession>();
 
-        public List<WorkSession> FindAll()
-        {
-            return _workSessions;
-        }
+        public List<WorkSession> FindAll() => _workSessions;
 
         public List<WorkSession> FindAllOfTheDay(DateTime date)
         {

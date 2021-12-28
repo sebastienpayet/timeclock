@@ -5,7 +5,7 @@ namespace TimeClock.business.useCase.startAWorkSession
 {
     public class StartAWorkSession : IUseCase<WorkSession, StartAWorkSessionCommand>
     {
-        private IWorkSessionRepository _workSessionRepository;
+        private readonly IWorkSessionRepository _workSessionRepository;
 
         public StartAWorkSession(IWorkSessionRepository workSessionRepository)
         {

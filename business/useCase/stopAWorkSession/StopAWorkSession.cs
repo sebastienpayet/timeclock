@@ -6,7 +6,7 @@ namespace TimeClock.business.useCase.stopAWorkSession
 {
     public class StopAWorkSession : IUseCase<WorkSession, StopAWorkSessionCommand>
     {
-        private IWorkSessionRepository _workSessionRepository;
+        private readonly IWorkSessionRepository _workSessionRepository;
 
         public StopAWorkSession(IWorkSessionRepository workSessionRepository)
         {
