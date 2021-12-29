@@ -1,10 +1,9 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
-using TimeClock.infrastructure.util;
+using Application = System.Windows.Application;
 
 namespace TimeClock
 {
@@ -13,16 +12,16 @@ namespace TimeClock
     /// </summary>
     public partial class MainWindow : Window
     {
-        NotifyIcon notifyIcon;
-        ContextMenu contextMenu;
+        private NotifyIcon notifyIcon;
+        private ContextMenu contextMenu;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            #if !DEBUG
-                SystemUtil.ConfigureAutoStart();
-            #endif
+#if !DEBUG
+            SystemUtil.ConfigureAutoStart();
+#endif
 
             SetWindowLocation();
             SetNotificationIcon();
@@ -31,7 +30,9 @@ namespace TimeClock
         protected override void OnStateChanged(EventArgs e)
         {
             if (WindowState == WindowState.Minimized)
+            {
                 Hide();
+            }
 
             base.OnStateChanged(e);
         }
@@ -40,6 +41,13 @@ namespace TimeClock
         {
             e.Cancel = true;
             Hide();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            notifyIcon.Icon.Dispose();
+            notifyIcon.Dispose();
+            base.OnClosed(e);
         }
 
         private void SetWindowLocation()
@@ -62,12 +70,12 @@ namespace TimeClock
             };
             contextMenu.MenuItems[1].Click += delegate (object sender, EventArgs args)
             {
-                System.Windows.Application.Current.Shutdown();
+                Application.Current.Shutdown();
             };
 
             // notifyIcon setup
             Uri iconUri = new Uri("pack://application:,,,/Main.ico", UriKind.RelativeOrAbsolute);
-            var iconStream = System.Windows.Application.GetResourceStream(iconUri)?.Stream;
+            var iconStream = Application.GetResourceStream(iconUri)?.Stream;
             notifyIcon = new NotifyIcon
             {
                 Icon = new Icon(iconStream),
