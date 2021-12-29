@@ -33,11 +33,12 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
                     // stop session
                     stopSession = workSessions[i + 1];
                 }
-                catch (IndexOutOfRangeException e)
+                catch (ArgumentOutOfRangeException e)
                 {
                     // a work session is in progress
                     // create a virtual stop session at now
                     stopSession = new WorkSession(WorkSessionType.STOP);
+                    _workSessionRepository.Save(stopSession);
                 }
 
                 if (startSession.Type != WorkSessionType.START || stopSession.Type != WorkSessionType.STOP)

@@ -4,15 +4,23 @@ using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using TimeClock.business.port.exporter;
+using TimeClock.business.useCase.getSessionsTimeForADay;
 using TimeClock.infrastructure.util;
 
 namespace TimeClock.infrastructure.exporter.excelExporter
 {
     public class ExcelExporter : IExporter
     {
+
+        public GetSessionsTimeForADay GetSessionsTimeForADay { get; private set; }
+
+        public ExcelExporter(GetSessionsTimeForADay getSessionsTimeForADay)
+        {
+            GetSessionsTimeForADay = getSessionsTimeForADay;
+        }
+
         public void ExportFromAReferenceDate(DateTime date)
         {
             List<UserDetails> persons = new List<UserDetails>()
@@ -33,10 +41,10 @@ namespace TimeClock.infrastructure.exporter.excelExporter
             using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 IWorkbook workbook = new XSSFWorkbook();
-                
+
                 ISheet excelSheet = workbook.CreateSheet("Sheet1");
                 excelSheet.ProtectSheet("password");
-              
+
                 List<string> columns = new List<string>();
                 IRow row = excelSheet.CreateRow(0);
                 int columnIndex = 0;
@@ -61,10 +69,26 @@ namespace TimeClock.infrastructure.exporter.excelExporter
 
                     rowIndex++;
                 }
+
+                DateTime currentDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime lastDayOfMonth = currentDayOfMonth.AddDays(DateTime.DaysInMonth(currentDayOfMonth.Year, currentDayOfMonth.Month) - 1);
+
+                while (currentDayOfMonth <= lastDayOfMonth)
+                {
+                    var totalTimeForThisDay = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(currentDayOfMonth)));
+
+                    row = excelSheet.CreateRow(rowIndex);
+                    row.CreateCell(0).SetCellValue(currentDayOfMonth.ToString("dd/MM/yyyy"));
+                    row.CreateCell(1).SetCellValue(totalTimeForThisDay);
+                    currentDayOfMonth = currentDayOfMonth.AddDays(1);
+                    rowIndex++;
+                }
+
+
                 workbook.Write(fs);
             }
 
-            SystemUtil.OpenExplorerOnFolder(folderPath);
+            SystemUtils.OpenExplorerOnFolder(folderPath);
         }
     }
 }

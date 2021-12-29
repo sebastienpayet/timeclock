@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TimeClock.business.model.workSession;
 using TimeClock.business.port.repository;
+using TimeClock.infrastructure.util;
 
 namespace TimeClock.infrastructure.repository.inMemory.workSession
 {
@@ -14,12 +15,14 @@ namespace TimeClock.infrastructure.repository.inMemory.workSession
 
         public List<WorkSession> FindAllOfTheDay(DateTime date)
         {
-            return _workSessions.Where(session => session.Date.Day == date.Day).ToList();
+            return _workSessions.Where(session =>
+            session.Date.Year == date.Year && session.Date.DayOfYear == date.DayOfYear
+            ).ToList();
         }
 
         public List<WorkSession> FindAllOfTheWeek(DateTime refDate)
         {
-            throw new NotImplementedException();
+            return _workSessions.Where(session => DateUtils.IsInTheSameWeek(session.Date, refDate)).ToList();
         }
 
         public WorkSession FindById(string id)

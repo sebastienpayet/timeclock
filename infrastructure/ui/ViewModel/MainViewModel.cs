@@ -68,7 +68,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
             DispatcherPriority.ApplicationIdle,
             new Action(() =>
             {
-                DaySessionsTimer = BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
+                DaySessionsTimer = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             }));
         }
 
@@ -77,10 +77,10 @@ namespace TimeClock.infrastructure.ui.ViewModel
             DispatcherTimer timer = new DispatcherTimer();
             timer.Tick += (s, e) =>
             {
-                CurrentSessionTimer = BuildTimerString(DateTime.Now - sessionStartTime);
+                CurrentSessionTimer = FormatUtils.BuildTimerString(DateTime.Now - sessionStartTime);
 
                 // todo a nettoyer
-                if (IsTimerRunning && SystemUtil.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
+                if (IsTimerRunning && SystemUtils.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
                 {
                     StopSession();
                     IsTimerRunning = false;
@@ -89,11 +89,6 @@ namespace TimeClock.infrastructure.ui.ViewModel
             };
             timer.Interval = TimeSpan.FromMilliseconds(333);
             return timer;
-        }
-
-        private string BuildTimerString(TimeSpan interval)
-        {
-            return string.Format("{0:D2}:{1:D2}:{2:D2}", interval.Hours, interval.Minutes, interval.Seconds);
         }
 
         public string CurrentSessionTimer
@@ -159,7 +154,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
             _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
             timer.Stop();
             SwitchButtonImageUri = PLAY_IMAGE;
-            DaySessionsTimer = BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
+            DaySessionsTimer = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
             SystemSounds.Beep.Play();
         }

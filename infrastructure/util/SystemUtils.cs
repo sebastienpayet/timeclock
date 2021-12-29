@@ -13,7 +13,7 @@ namespace TimeClock.infrastructure.util
         public uint dwTime;
     }
 
-    class SystemUtil
+    public class SystemUtils
     {
 
         [DllImport("User32.dll")]

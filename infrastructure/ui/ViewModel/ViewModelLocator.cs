@@ -26,6 +26,8 @@ using TimeClock.business.useCase.startAWorkSession;
 using TimeClock.business.useCase.stopAWorkSession;
 using TimeClock.infrastructure.exporter.excelExporter;
 using TimeClock.infrastructure.repository.inMemory.workSession;
+using TimeClock.infrastructure.repository.sqlLite;
+using TimeClock.infrastructure.repository.sqlLite.workSession;
 using TimeClock.infrastructure.ui.ViewModel;
 
 namespace TimeClock.ViewModel
@@ -54,7 +56,8 @@ namespace TimeClock.ViewModel
 
             // CDI configuration
             // implementations
-            SimpleIoc.Default.Register<IWorkSessionRepository, InMemoryWorkSessionRepository>();
+            SimpleIoc.Default.Register<TimeClockContext>();
+            SimpleIoc.Default.Register<IWorkSessionRepository, SqlLiteWorkSessionRepository>();
             SimpleIoc.Default.Register<IExporter, ExcelExporter>();
             // uses cases
             SimpleIoc.Default.Register<MainViewModel>();

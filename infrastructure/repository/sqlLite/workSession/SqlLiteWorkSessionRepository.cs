@@ -1,26 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TimeClock.business.model.workSession;
 using TimeClock.business.port.repository;
+using TimeClock.infrastructure.util;
 
 namespace TimeClock.infrastructure.repository.sqlLite.workSession
 {
 
-    class SqlLiteWorkSessionRepository : IWorkSessionRepository
+    public class SqlLiteWorkSessionRepository : IWorkSessionRepository
     {
+        private readonly TimeClockContext timeClockContext;
+
+        public SqlLiteWorkSessionRepository(TimeClockContext timeClockContext)
+        {
+            this.timeClockContext = timeClockContext;
+        }
+
         public List<WorkSession> FindAll()
         {
-            throw new NotImplementedException();
+            return timeClockContext.WorkSessions.ToList();
         }
 
         public List<WorkSession> FindAllOfTheDay(DateTime date)
         {
-            throw new NotImplementedException();
+            return timeClockContext.WorkSessions.Where(session =>
+            session.Date.Year == date.Year && session.Date.DayOfYear == date.DayOfYear
+            ).ToList();
         }
 
         public List<WorkSession> FindAllOfTheWeek(DateTime refDate)
         {
-            throw new NotImplementedException();
+            return timeClockContext.WorkSessions.Where(session =>
+            DateUtils.IsInTheSameWeek(session.Date, refDate)
+            ).ToList();
         }
 
         public WorkSession FindById(string id)
@@ -35,7 +48,10 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
         public WorkSession Save(WorkSession entity)
         {
-            throw new NotImplementedException();
+            WorkSession savedSession = timeClockContext.WorkSessions.Update(entity).Entity;
+            timeClockContext.WorkSessions.Add(savedSession);
+            timeClockContext.SaveChanges();
+            return savedSession;
         }
     }
 }
