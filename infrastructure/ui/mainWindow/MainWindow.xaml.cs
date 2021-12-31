@@ -62,8 +62,8 @@ namespace TimeClock
         {
             // context menu setup
             contextMenu = new ContextMenu();
-            contextMenu.MenuItems.Add("&Ouvrir");
-            contextMenu.MenuItems.Add("&Quitter");
+            _ = contextMenu.MenuItems.Add("&Ouvrir");
+            _ = contextMenu.MenuItems.Add("&Quitter");
             contextMenu.MenuItems[0].Click += delegate (object sender, EventArgs args)
             {
                 Show();
@@ -74,11 +74,10 @@ namespace TimeClock
             };
 
             // notifyIcon setup
-            Uri iconUri = new Uri("pack://application:,,,/Main.ico", UriKind.RelativeOrAbsolute);
-            var iconStream = Application.GetResourceStream(iconUri)?.Stream;
+            Icon icon = (Icon)Properties.Resources.MainIcon;
             notifyIcon = new NotifyIcon
             {
-                Icon = new Icon(iconStream),
+                Icon = icon,
                 Visible = true,
                 Text = "TimeClock",
                 ContextMenu = contextMenu

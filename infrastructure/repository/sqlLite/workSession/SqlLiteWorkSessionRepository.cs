@@ -41,6 +41,18 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
             throw new NotImplementedException();
         }
 
+        public List<WorkSession> FindDistinctOneByMonth(int numberOfMonthesInThePast)
+        {
+            DateTime minDate = DateTime.Now.AddMonths(-numberOfMonthesInThePast);
+            minDate = new DateTime(minDate.Year, minDate.Month, 1, 0, 0, 0);
+
+            return timeClockContext.WorkSessions.Where(session => session.Date >= minDate)
+                .ToList()
+                .GroupBy(session => session.Date.Year + "" + session.Date.Month)
+                .Select(group => group.First())
+                .ToList();
+        }
+
         public WorkSession FindLastOfTheDay(DateTime date)
         {
             throw new NotImplementedException();
@@ -48,10 +60,9 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
         public WorkSession Save(WorkSession entity)
         {
-            WorkSession savedSession = timeClockContext.WorkSessions.Update(entity).Entity;
-            timeClockContext.WorkSessions.Add(savedSession);
-            timeClockContext.SaveChanges();
-            return savedSession;
+            _ = timeClockContext.WorkSessions.Add(entity);
+            _ = timeClockContext.SaveChanges();
+            return entity;
         }
     }
 }

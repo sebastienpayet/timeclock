@@ -54,7 +54,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Main.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Main.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>B5DC043B342E50069FFCDA1AA29BFDE3C94F805D</ManifestCertificateThumbprint>
@@ -298,7 +298,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
@@ -324,16 +325,16 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="infrastructure\ui\mainWindow\play-button.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Main.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="infrastructure\ui\mainWindow\pause-button.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\button-15.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pause-button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\play-button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Main.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" />

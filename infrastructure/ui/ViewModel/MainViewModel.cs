@@ -33,11 +33,11 @@ namespace TimeClock.infrastructure.ui.ViewModel
         public GetSessionsTimeForADay GetSessionsTimeForADay { get; private set; }
         public ExportData ExportData { get; private set; }
 
-        private const string PAUSE_IMAGE = "pause-button.png";
-        private const string PLAY_IMAGE = "play-button.png";
+        private const string PAUSE_IMAGE = "pack://application:,,,/Resources/pause-button.png";
+        private const string PLAY_IMAGE = "pack://application:,,,/Resources/play-button.png";
         private const int MAX_IDLE_TIME_IN_SECONDS = 600;
         private readonly SoundPlayer SoundPlayer = new SoundPlayer(Properties.Resources.button_15);
-
+        
         private DateTime sessionStartTime;
         private string currentSessionTimer;
         private string daySessionsTimer;

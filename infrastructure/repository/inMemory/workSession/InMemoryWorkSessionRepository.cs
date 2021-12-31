@@ -30,6 +30,11 @@ namespace TimeClock.infrastructure.repository.inMemory.workSession
             throw new NotImplementedException();
         }
 
+        public List<WorkSession> FindDistinctOneByMonth(int numberOfMonthesInThePast)
+        {
+            throw new NotImplementedException();
+        }
+
         public WorkSession FindLastOfTheDay(DateTime date)
         {
             throw new NotImplementedException();

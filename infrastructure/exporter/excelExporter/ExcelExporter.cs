@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using NPOI.SS.UserModel;
+﻿using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
+using TimeClock.business.model.workSession;
 using TimeClock.business.port.exporter;
+using TimeClock.business.port.repository;
 using TimeClock.business.useCase.getSessionsTimeForADay;
 using TimeClock.infrastructure.util;
 
@@ -15,74 +15,28 @@ namespace TimeClock.infrastructure.exporter.excelExporter
     {
 
         public GetSessionsTimeForADay GetSessionsTimeForADay { get; private set; }
+        private readonly IWorkSessionRepository _workSessionRepository;
 
-        public ExcelExporter(GetSessionsTimeForADay getSessionsTimeForADay)
+        public ExcelExporter(GetSessionsTimeForADay getSessionsTimeForADay, IWorkSessionRepository workSessionRepository)
         {
             GetSessionsTimeForADay = getSessionsTimeForADay;
+            _workSessionRepository = workSessionRepository;
         }
 
         public void ExportFromAReferenceDate(DateTime date)
         {
-            List<UserDetails> persons = new List<UserDetails>()
-            {
-                new UserDetails() {ID="1001", Name="ABCD", City ="City1", Country="USA"},
-                new UserDetails() {ID="1002", Name="PQRS", City ="City2", Country="INDIA"},
-                new UserDetails() {ID="1003", Name="XYZZ", City ="City3", Country="CHINA"},
-                new UserDetails() {ID="1004", Name="LMNO", City ="City4", Country="UK"},
-           };
-
-            // Lets converts our object data to Datatable for a simplified logic.
-            // Datatable is most easy way to deal with complex datatypes for easy reading and formatting.
-            DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(persons), typeof(DataTable));
             string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeClock";
-            string filePath = folderPath + "\\Result.xlsx";
+            string filePath = folderPath + $"\\TimeClock_Export_{DateTime.Now:dd-MM-yyyy-HHmmss}.xlsx";
             _ = Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
             using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 IWorkbook workbook = new XSSFWorkbook();
+                List<WorkSession> monthSessions = _workSessionRepository.FindDistinctOneByMonth(3);
 
-                ISheet excelSheet = workbook.CreateSheet(DateTime.Now.ToString("MMMM yyyy"));
-                excelSheet.ProtectSheet("password");
-
-                List<string> columns = new List<string>();
-                //IRow row = excelSheet.CreateRow(0);
-                //int columnIndex = 0;
-
-                //foreach (DataColumn column in table.Columns)
-                //{
-                //    columns.Add(column.ColumnName);
-                //    row.CreateCell(columnIndex).SetCellValue(column.ColumnName);
-                //    columnIndex++;
-                //}
-
-                //int rowIndex = 1;
-                //foreach (DataRow dsrow in table.Rows)
-                //{
-                //    row = excelSheet.CreateRow(rowIndex);
-                //    int cellIndex = 0;
-                //    foreach (string col in columns)
-                //    {
-                //        row.CreateCell(cellIndex).SetCellValue(dsrow[col].ToString());
-                //        cellIndex++;
-                //    }
-
-                //    rowIndex++;
-                //}
-
-                DateTime currentDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                DateTime lastDayOfMonth = currentDayOfMonth.AddDays(DateTime.DaysInMonth(currentDayOfMonth.Year, currentDayOfMonth.Month) - 1);
-                int rowIndex = 0;
-                IRow row;
-                while (currentDayOfMonth <= lastDayOfMonth)
+                foreach (WorkSession monthSession in monthSessions)
                 {
-                    string totalTimeForThisDay = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(currentDayOfMonth)));
-
-                    row = excelSheet.CreateRow(rowIndex);
-                    row.CreateCell(0).SetCellValue(currentDayOfMonth.ToString("dd/MM/yyyy"));
-                    row.CreateCell(1).SetCellValue(totalTimeForThisDay);
-                    currentDayOfMonth = currentDayOfMonth.AddDays(1);
-                    rowIndex++;
+                    ExportMonthSheet(workbook, monthSession.Date);
                 }
 
 
@@ -90,6 +44,51 @@ namespace TimeClock.infrastructure.exporter.excelExporter
             }
 
             SystemUtils.OpenExplorerOnFolder(folderPath);
+        }
+
+        private void ExportMonthSheet(IWorkbook workbook, DateTime refDate)
+        {
+            ISheet excelSheet = workbook.CreateSheet(refDate.ToString("MMMM yyyy"));
+            excelSheet.ProtectSheet("password");
+
+            TimeSpan weekTimeSpan = new TimeSpan();
+            TimeSpan totalTimeSpan = new TimeSpan();
+            DateTime currentDayOfMonth = new DateTime(refDate.Year, refDate.Month, 1);
+            DateTime lastDayOfMonth = currentDayOfMonth.AddDays(DateTime.DaysInMonth(currentDayOfMonth.Year, currentDayOfMonth.Month) - 1);
+            int rowIndex = 0;
+            IRow row = excelSheet.CreateRow(rowIndex);
+            row.CreateCell(0).SetCellValue("Date");
+            row.CreateCell(1).SetCellValue("Temps du jour");
+            row.CreateCell(2).SetCellValue("Temps en fin de semaine / mois");
+            rowIndex++;
+            while (currentDayOfMonth <= lastDayOfMonth)
+            {
+                TimeSpan totalTimeForThisDay = GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(currentDayOfMonth));
+                weekTimeSpan = weekTimeSpan.Add(totalTimeForThisDay);
+                totalTimeSpan = totalTimeSpan.Add(totalTimeForThisDay);
+                string formattedTimeForThisDay = FormatUtils.BuildTimerString(totalTimeForThisDay);
+                row = excelSheet.CreateRow(rowIndex);
+                row.CreateCell(0).SetCellValue(currentDayOfMonth.ToString("dd/MM/yyyy"));
+                row.CreateCell(1).SetCellValue(formattedTimeForThisDay);
+
+                if (!DateUtils.IsInTheSameWeek(currentDayOfMonth, currentDayOfMonth.AddDays(1)) || currentDayOfMonth == lastDayOfMonth)
+                {
+                    row.CreateCell(2).SetCellValue(FormatUtils.BuildTimerString(weekTimeSpan));
+                    weekTimeSpan = new TimeSpan();
+                }
+
+
+                currentDayOfMonth = currentDayOfMonth.AddDays(1);
+                rowIndex++;
+            }
+
+            row = excelSheet.CreateRow(++rowIndex);
+            row.CreateCell(0).SetCellValue("Total");
+            row.CreateCell(1).SetCellValue(FormatUtils.BuildTimerString(totalTimeSpan));
+
+            excelSheet.AutoSizeColumn(0);
+            excelSheet.AutoSizeColumn(1);
+            excelSheet.AutoSizeColumn(2);
         }
     }
 }

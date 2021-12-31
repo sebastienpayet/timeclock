@@ -18,6 +18,9 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
         public TimeSpan Handle(GetSessionsTimeForADayCommand command)
         {
             List<WorkSession> workSessions = _workSessionRepository.FindAllOfTheDay(command.Date).OrderBy(session => session.Date).ToList();
+
+            ChekWorkSessionsConsistency(command.Date, workSessions);
+
             TimeSpan totalTimeSpan = new TimeSpan();
 
             for (int i = 0; i < workSessions.Count; i += 2)
@@ -27,7 +30,7 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
 
                 // start session
                 startSession = workSessions[i];
-                
+
                 try
                 {
                     // stop session
@@ -43,12 +46,38 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
 
                 if (startSession.Type != WorkSessionType.START || stopSession.Type != WorkSessionType.STOP)
                 {
-                    throw new ApplicationException($"illegal session type in sessions list => start => index {i} - {startSession.Type}, stop => index {i+1} - {stopSession.Type}");
+                    throw new ApplicationException($"illegal session type in sessions list => start => index {i} - {startSession.Type}, stop => index {i + 1} - {stopSession.Type}");
                 }
 
                 totalTimeSpan = totalTimeSpan.Add(stopSession.Date - startSession.Date);
             }
             return totalTimeSpan;
+        }
+
+        private void ChekWorkSessionsConsistency(DateTime date, List<WorkSession> workSessions)
+        {
+            // if the first of the day is a stop, just delete it
+            if (workSessions.Count > 0)
+            {
+                if (workSessions.First().Type == WorkSessionType.STOP)
+                {
+                    _ = workSessions.Remove(workSessions[0]);
+                }
+
+                // if the last session of the day is a start, load the next session of the next day
+                if (workSessions.Last().Type == WorkSessionType.START)
+                {
+                    List<WorkSession> nextDayworkSessions = _workSessionRepository.FindAllOfTheDay(date.AddDays(1)).OrderBy(session => session.Date).ToList();
+
+                    // first session of the next day MUST be a STOP
+                    if (nextDayworkSessions.Count == 0 || nextDayworkSessions.First().Type != WorkSessionType.STOP)
+                    {
+                        throw new ApplicationException("Wrong START session on NEXT day");
+                    }
+
+                    workSessions.Add(nextDayworkSessions.First());
+                };
+            }
         }
     }
 }
