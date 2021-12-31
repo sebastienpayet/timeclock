@@ -38,9 +38,9 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
-                    // a work session is in progress
-                    // create a virtual stop session at now
-                    stopSession = new WorkSession(WorkSessionType.STOP);
+                    // a work session has been started but not stopped
+                    // create a virtual stop session at start date + 1 second, session time is lost
+                    stopSession = new WorkSession(WorkSessionType.STOP, workSessions[i].Date.AddSeconds(1));
                     _workSessionRepository.Save(stopSession);
                 }
 
@@ -70,12 +70,13 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
                     List<WorkSession> nextDayworkSessions = _workSessionRepository.FindAllOfTheDay(date.AddDays(1)).OrderBy(session => session.Date).ToList();
 
                     // first session of the next day MUST be a STOP
-                    if (nextDayworkSessions.Count == 0 || nextDayworkSessions.First().Type != WorkSessionType.STOP)
+                    if (nextDayworkSessions.Count > 0 && nextDayworkSessions.First().Type == WorkSessionType.STOP)
                     {
-                        throw new ApplicationException("Wrong START session on NEXT day");
+                        workSessions.Add(nextDayworkSessions.First());
                     }
+                    // Todo else log error here
 
-                    workSessions.Add(nextDayworkSessions.First());
+                    
                 };
             }
         }

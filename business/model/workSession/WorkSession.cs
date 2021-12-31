@@ -25,6 +25,11 @@ namespace TimeClock.business.model.workSession
         {
         }
 
+        public WorkSession(WorkSessionType type, DateTime date) : this(type)
+        {
+            Date = date;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is WorkSession session &&
