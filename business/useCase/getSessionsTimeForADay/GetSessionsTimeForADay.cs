@@ -75,8 +75,6 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
                         workSessions.Add(nextDayworkSessions.First());
                     }
                     // Todo else log error here
-
-                    
                 };
             }
         }

@@ -84,7 +84,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
                 {
                     StopSession();
                     IsTimerRunning = false;
-                    _ = MessageBox.Show("Votre session de travail à été arrêtée pour cause d'inactivité.", "TimeClock");
+                    _ = MessageBox.Show("Votre session de travail à été arrêtée pour cause d'inactivité.", Properties.Resources.AppName);
                 }
             };
             timer.Interval = TimeSpan.FromMilliseconds(333);
@@ -121,14 +121,18 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         private void ExportDataMethod()
         {
+            if (IsTimerRunning)
+            {
+                StopSession();
+                IsTimerRunning = false;
+            }
             _ = ExportData.Handle(new ExportDataCommand(DateTime.Now));
+
         }
 
         private void SwitchTimerMethod()
         {
-
-            IsTimerRunning = !IsTimerRunning;
-            if (IsTimerRunning)
+            if (!IsTimerRunning)
             {
                 StartSession();
             }
@@ -136,7 +140,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
             {
                 StopSession();
             }
-
+            IsTimerRunning = !IsTimerRunning;
         }
 
         private void StartSession()
@@ -164,7 +168,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
             if (IsTimerRunning)
             {
                 _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
-                _ = MessageBox.Show("Votre session de travail en cours vient d'être terminée.", "TimeClock");
+                _ = MessageBox.Show("Votre session de travail en cours vient d'être terminée.", Properties.Resources.AppName);
             }
         }
     }
