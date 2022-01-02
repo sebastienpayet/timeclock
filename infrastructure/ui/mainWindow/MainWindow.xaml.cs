@@ -18,11 +18,6 @@ namespace TimeClock
         public MainWindow()
         {
             InitializeComponent();
-
-#if !DEBUG
-            SystemUtil.ConfigureAutoStart();
-#endif
-
             SetWindowLocation();
             SetNotificationIcon();
         }

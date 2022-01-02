@@ -35,9 +35,7 @@ namespace TimeClock.infrastructure.util
         {
             // auto start configuration
             RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            rkApp.SetValue("StartupWithWindows", System.Reflection.Assembly.GetExecutingAssembly().Location);
-            rkApp.DeleteValue("StartupWithWindows");
-
+            rkApp.SetValue("TimeClockStatupWithWindows", System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
 
         public static void OpenExplorerOnFolder(string folderPath)

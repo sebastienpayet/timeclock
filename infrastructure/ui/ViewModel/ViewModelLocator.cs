@@ -29,6 +29,7 @@ using TimeClock.infrastructure.repository.inMemory.workSession;
 using TimeClock.infrastructure.repository.sqlLite;
 using TimeClock.infrastructure.repository.sqlLite.workSession;
 using TimeClock.infrastructure.ui.ViewModel;
+using TimeClock.infrastructure.util;
 
 namespace TimeClock.ViewModel
 {
@@ -51,6 +52,7 @@ namespace TimeClock.ViewModel
                 Environment.Exit(0);
             }
 
+            SystemUtils.ConfigureAutoStart();
 
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 

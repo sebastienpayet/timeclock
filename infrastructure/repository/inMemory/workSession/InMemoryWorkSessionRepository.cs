@@ -27,15 +27,10 @@ namespace TimeClock.infrastructure.repository.inMemory.workSession
 
         public WorkSession FindById(string id)
         {
-            throw new NotImplementedException();
+            return _workSessions.Where(session => session.Id == id).Single();
         }
 
         public List<WorkSession> FindDistinctOneByMonth(int numberOfMonthesInThePast)
-        {
-            throw new NotImplementedException();
-        }
-
-        public WorkSession FindLastOfTheDay(DateTime date)
         {
             throw new NotImplementedException();
         }

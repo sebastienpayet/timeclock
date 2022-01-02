@@ -39,7 +39,6 @@ namespace TimeClock.infrastructure.exporter.excelExporter
                     ExportMonthSheet(workbook, monthSession.Date);
                 }
 
-
                 workbook.Write(fs);
             }
 
@@ -49,7 +48,7 @@ namespace TimeClock.infrastructure.exporter.excelExporter
         private void ExportMonthSheet(IWorkbook workbook, DateTime refDate)
         {
             ISheet excelSheet = workbook.CreateSheet(refDate.ToString("MMMM yyyy"));
-            excelSheet.ProtectSheet("password");
+            excelSheet.ProtectSheet(Guid.NewGuid().ToString("n"));
 
             TimeSpan weekTimeSpan = new TimeSpan();
             TimeSpan totalTimeSpan = new TimeSpan();
@@ -57,10 +56,12 @@ namespace TimeClock.infrastructure.exporter.excelExporter
             DateTime lastDayOfMonth = currentDayOfMonth.AddDays(DateTime.DaysInMonth(currentDayOfMonth.Year, currentDayOfMonth.Month) - 1);
             int rowIndex = 0;
             IRow row = excelSheet.CreateRow(rowIndex);
+            // headers
             row.CreateCell(0).SetCellValue("Date");
             row.CreateCell(1).SetCellValue("Temps du jour");
             row.CreateCell(2).SetCellValue("Temps en fin de semaine / mois");
             rowIndex++;
+            //data
             while (currentDayOfMonth <= lastDayOfMonth)
             {
                 TimeSpan totalTimeForThisDay = GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(currentDayOfMonth));
@@ -80,7 +81,7 @@ namespace TimeClock.infrastructure.exporter.excelExporter
                 currentDayOfMonth = currentDayOfMonth.AddDays(1);
                 rowIndex++;
             }
-
+            // footer
             row = excelSheet.CreateRow(++rowIndex);
             row.CreateCell(0).SetCellValue("Total");
             row.CreateCell(1).SetCellValue(FormatUtils.BuildTimerString(totalTimeSpan));

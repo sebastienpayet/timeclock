@@ -38,7 +38,7 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
         public WorkSession FindById(string id)
         {
-            throw new NotImplementedException();
+            return timeClockContext.WorkSessions.Where(session => session.Id == id).Single();
         }
 
         public List<WorkSession> FindDistinctOneByMonth(int numberOfMonthesInThePast)
@@ -51,11 +51,6 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
                 .GroupBy(session => session.Date.Year + "" + session.Date.Month)
                 .Select(group => group.First())
                 .OrderByDescending(session => session.Date).ToList();
-        }
-
-        public WorkSession FindLastOfTheDay(DateTime date)
-        {
-            throw new NotImplementedException();
         }
 
         public WorkSession Save(WorkSession entity)
