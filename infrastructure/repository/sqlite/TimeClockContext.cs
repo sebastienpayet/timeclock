@@ -19,7 +19,7 @@ namespace TimeClock.infrastructure.repository.sqlLite
         {
             Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
             string path = Environment.GetFolderPath(folder);
-            DbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}timeclock.db";
+            DbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}\\timeclock\\timeclock.db";
             Database.EnsureCreated();
         }
 

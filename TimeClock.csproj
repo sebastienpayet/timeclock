@@ -263,8 +263,8 @@
     <Compile Include="infrastructure\exporter\excelExporter\ExcelExporter.cs" />
     <Compile Include="infrastructure\exporter\excelExporter\UserDetails.cs" />
     <Compile Include="infrastructure\repository\inMemory\workSession\InMemoryWorkSessionRepository.cs" />
-    <Compile Include="infrastructure\repository\sqlLite\TimeClockContext.cs" />
-    <Compile Include="infrastructure\repository\sqlLite\workSession\SqlLiteWorkSessionRepository.cs" />
+    <Compile Include="infrastructure\repository\sqlite\TimeClockContext.cs" />
+    <Compile Include="infrastructure\repository\sqlite\workSession\SqliteWorkSessionRepository.cs" />
     <Compile Include="infrastructure\ui\ViewModel\MainViewModel.cs" />
     <Compile Include="infrastructure\ui\ViewModel\ViewModelLocator.cs" />
     <Page Include="infrastructure\ui\mainWindow\MainWindow.xaml">

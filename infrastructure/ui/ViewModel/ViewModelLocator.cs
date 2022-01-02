@@ -57,7 +57,7 @@ namespace TimeClock.ViewModel
             // CDI configuration
             // implementations
             SimpleIoc.Default.Register<TimeClockContext>();
-            SimpleIoc.Default.Register<IWorkSessionRepository, SqlLiteWorkSessionRepository>();
+            SimpleIoc.Default.Register<IWorkSessionRepository, SqliteWorkSessionRepository>();
             SimpleIoc.Default.Register<IExporter, ExcelExporter>();
             // uses cases
             SimpleIoc.Default.Register<MainViewModel>();

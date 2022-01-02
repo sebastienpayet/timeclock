@@ -32,7 +32,7 @@ namespace TimeClock.infrastructure.exporter.excelExporter
             using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 IWorkbook workbook = new XSSFWorkbook();
-                List<WorkSession> monthSessions = _workSessionRepository.FindDistinctOneByMonth(3);
+                List<WorkSession> monthSessions = _workSessionRepository.FindDistinctOneByMonth(5);
 
                 foreach (WorkSession monthSession in monthSessions)
                 {
@@ -76,7 +76,6 @@ namespace TimeClock.infrastructure.exporter.excelExporter
                     row.CreateCell(2).SetCellValue(FormatUtils.BuildTimerString(weekTimeSpan));
                     weekTimeSpan = new TimeSpan();
                 }
-
 
                 currentDayOfMonth = currentDayOfMonth.AddDays(1);
                 rowIndex++;

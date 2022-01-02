@@ -8,11 +8,11 @@ using TimeClock.infrastructure.util;
 namespace TimeClock.infrastructure.repository.sqlLite.workSession
 {
 
-    public class SqlLiteWorkSessionRepository : IWorkSessionRepository
+    public class SqliteWorkSessionRepository : IWorkSessionRepository
     {
         private readonly TimeClockContext timeClockContext;
 
-        public SqlLiteWorkSessionRepository(TimeClockContext timeClockContext)
+        public SqliteWorkSessionRepository(TimeClockContext timeClockContext)
         {
             this.timeClockContext = timeClockContext;
         }
@@ -50,7 +50,7 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
                 .ToList()
                 .GroupBy(session => session.Date.Year + "" + session.Date.Month)
                 .Select(group => group.First())
-                .ToList();
+                .OrderByDescending(session => session.Date).ToList();
         }
 
         public WorkSession FindLastOfTheDay(DateTime date)
