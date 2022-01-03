@@ -25,7 +25,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         public new event PropertyChangedEventHandler PropertyChanged;
         public string SwitchButtonImageUri { get; private set; }
-        public bool IsTimerRunning { get; private set; }
+        public bool IsSessionInProgress { get; private set; }
 
         // CDI
         public StartAWorkSession StartAWorkSession { get; private set; }
@@ -37,7 +37,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
         private const string PLAY_IMAGE = "pack://application:,,,/Resources/play-button.png";
         private const int MAX_IDLE_TIME_IN_SECONDS = 600;
         private readonly SoundPlayer SoundPlayer = new SoundPlayer(Properties.Resources.button_15);
-        
+
         private DateTime sessionStartTime;
         private string currentSessionTimer;
         private string daySessionsTimer;
@@ -57,7 +57,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
             ExportData = exportData;
 
             // init start vars values
-            IsTimerRunning = false;
+            IsSessionInProgress = false;
             SwitchButtonImageUri = PLAY_IMAGE;
 
             // init timer
@@ -80,10 +80,9 @@ namespace TimeClock.infrastructure.ui.ViewModel
                 CurrentSessionTimer = FormatUtils.BuildTimerString(DateTime.Now - sessionStartTime);
 
                 // todo a nettoyer
-                if (IsTimerRunning && SystemUtils.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
+                if (IsSessionInProgress && SystemUtils.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
                 {
                     StopSession();
-                    IsTimerRunning = false;
                     _ = MessageBox.Show("Votre session de travail à été arrêtée pour cause d'inactivité.", Properties.Resources.AppName);
                 }
             };
@@ -121,10 +120,9 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         private void ExportDataMethod()
         {
-            if (IsTimerRunning)
+            if (IsSessionInProgress)
             {
                 StopSession();
-                IsTimerRunning = false;
             }
             _ = ExportData.Handle(new ExportDataCommand(DateTime.Now));
 
@@ -132,7 +130,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         private void SwitchTimerMethod()
         {
-            if (!IsTimerRunning)
+            if (!IsSessionInProgress)
             {
                 StartSession();
             }
@@ -140,7 +138,6 @@ namespace TimeClock.infrastructure.ui.ViewModel
             {
                 StopSession();
             }
-            IsTimerRunning = !IsTimerRunning;
         }
 
         private void StartSession()
@@ -151,6 +148,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
             SwitchButtonImageUri = PAUSE_IMAGE;
             SoundPlayer.Play();
             PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
+            IsSessionInProgress = true;
         }
 
         private void StopSession()
@@ -161,14 +159,23 @@ namespace TimeClock.infrastructure.ui.ViewModel
             DaySessionsTimer = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
             SystemSounds.Beep.Play();
+            IsSessionInProgress = false;
         }
 
         private void ApplicationClosingMethod(EventArgs obj)
         {
-            if (IsTimerRunning)
+            if (IsSessionInProgress)
             {
                 _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
                 _ = MessageBox.Show("Votre session de travail en cours vient d'être terminée.", Properties.Resources.AppName);
+            }
+        }
+
+        internal void StopSessionIfNeeded()
+        {
+            if (IsSessionInProgress)
+            {
+                StopSession();
             }
         }
     }

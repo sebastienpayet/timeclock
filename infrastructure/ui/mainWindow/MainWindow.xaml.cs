@@ -45,6 +45,7 @@ namespace TimeClock
             base.OnClosed(e);
         }
 
+
         private void SetWindowLocation()
         {
             // first open windows location

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CommonServiceLocator;
 using System.Windows;
+using TimeClock.infrastructure.ui.ViewModel;
 
 namespace TimeClock
 {
@@ -13,5 +9,11 @@ namespace TimeClock
     /// </summary>
     public partial class App : Application
     {
+
+        private void App_SessionEnding(object sender, SessionEndingCancelEventArgs e)
+        {
+            MainViewModel MainViewModel = ServiceLocator.Current.GetInstance<MainViewModel>();
+            MainViewModel.StopSessionIfNeeded();
+        }
     }
 }

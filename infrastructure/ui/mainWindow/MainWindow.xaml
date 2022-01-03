@@ -10,6 +10,7 @@
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
         VerticalAlignment="Center" HorizontalAlignment="Center" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="Manual" 
         ShowInTaskbar="False" WindowStyle="ThreeDBorderWindow"
+        
         >
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo/>

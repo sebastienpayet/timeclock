@@ -25,7 +25,6 @@ using TimeClock.business.useCase.getSessionsTimeForADay;
 using TimeClock.business.useCase.startAWorkSession;
 using TimeClock.business.useCase.stopAWorkSession;
 using TimeClock.infrastructure.exporter.excelExporter;
-using TimeClock.infrastructure.repository.inMemory.workSession;
 using TimeClock.infrastructure.repository.sqlLite;
 using TimeClock.infrastructure.repository.sqlLite.workSession;
 using TimeClock.infrastructure.ui.ViewModel;
@@ -69,15 +68,23 @@ namespace TimeClock.ViewModel
             SimpleIoc.Default.Register<ExportData>();
             // utils
             Messenger.Default.Register<NotificationMessage>(this, NotifyUserMethod);
+
         }
 
-        public MainViewModel MainViewModel
+        private void App_SessionEnding(object sender, SessionEndingCancelEventArgs e)
         {
-            get
+            // Ask the user if they want to allow the session to end
+            string msg = string.Format("{0}. End session?", e.ReasonSessionEnding);
+            MessageBoxResult result = MessageBox.Show(msg, "Session Ending", MessageBoxButton.YesNo);
+
+            // End session, if specified
+            if (result == MessageBoxResult.No)
             {
-                return ServiceLocator.Current.GetInstance<MainViewModel>();
+                e.Cancel = true;
             }
         }
+
+        public MainViewModel MainViewModel => ServiceLocator.Current.GetInstance<MainViewModel>();
 
 
         private void NotifyUserMethod(NotificationMessage message)
@@ -87,7 +94,7 @@ namespace TimeClock.ViewModel
 
         public static void Cleanup()
         {
-           // todo
+            // todo
         }
     }
 }
