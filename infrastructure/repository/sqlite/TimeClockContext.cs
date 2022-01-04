@@ -1,8 +1,8 @@
-﻿using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TimeClock.business.model.workSession;
 
@@ -19,14 +19,17 @@ namespace TimeClock.infrastructure.repository.sqlLite
         {
             Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
             string path = Environment.GetFolderPath(folder);
-            DbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}\\timeclock\\timeclock.db";
-            Database.EnsureCreated();
+            DbPath = $"{path}{Path.DirectorySeparatorChar}\\timeclock\\timeclock.db";
+            _ = Directory.CreateDirectory(Path.GetDirectoryName(DbPath));
+            _ = Database.EnsureCreated();
         }
 
         // The following configures EF to create a Sqlite database file in the
         // special "local" folder for your platform.
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlite($"Data Source={DbPath}");
+        {
+            _ = options.UseSqlite($"Data Source={DbPath}");
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
