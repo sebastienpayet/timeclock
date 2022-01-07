@@ -13,7 +13,7 @@ namespace TimeClock
         private void App_SessionEnding(object sender, SessionEndingCancelEventArgs e)
         {
             MainViewModel MainViewModel = ServiceLocator.Current.GetInstance<MainViewModel>();
-            MainViewModel.StopSessionIfNeeded();
+            MainViewModel.StopSession();
         }
     }
 }

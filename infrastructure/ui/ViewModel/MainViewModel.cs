@@ -1,5 +1,6 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using Microsoft.Win32;
 using System;
 using System.ComponentModel;
 using System.Media;
@@ -63,13 +64,35 @@ namespace TimeClock.infrastructure.ui.ViewModel
             // init timer
             timer = BuildTimer();
 
+            // init watch on power change
+            SystemEvents.PowerModeChanged += OnPowerChange;
+
             // init current day timer value
             _ = Application.Current.Dispatcher.Invoke(
             DispatcherPriority.ApplicationIdle,
             new Action(() =>
             {
-                DaySessionsTimer = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
+                RefreshDaySessionsTimer();
             }));
+        }
+
+
+
+        private void OnPowerChange(object s, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Resume:
+                    RefreshDaySessionsTimer();
+                    break;
+                case PowerModes.Suspend:
+                    StopSession();
+                    break;
+                case PowerModes.StatusChange:
+                default:
+                    // do nothing
+                    break;
+            }
         }
 
         private DispatcherTimer BuildTimer()
@@ -79,15 +102,20 @@ namespace TimeClock.infrastructure.ui.ViewModel
             {
                 CurrentSessionTimer = FormatUtils.BuildTimerString(DateTime.Now - sessionStartTime);
 
-                // todo a nettoyer
-                if (IsSessionInProgress && SystemUtils.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
+                if (SystemUtils.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
                 {
                     StopSession();
                     _ = MessageBox.Show("Votre session de travail à été arrêtée pour cause d'inactivité.", Properties.Resources.AppName);
                 }
             };
+
             timer.Interval = TimeSpan.FromMilliseconds(333);
             return timer;
+        }
+
+        private void RefreshDaySessionsTimer()
+        {
+            DaySessionsTimer = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
         }
 
         public string CurrentSessionTimer
@@ -120,12 +148,8 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         private void ExportDataMethod()
         {
-            if (IsSessionInProgress)
-            {
-                StopSession();
-            }
+            StopSession();
             _ = ExportData.Handle(new ExportDataCommand(DateTime.Now));
-
         }
 
         private void SwitchTimerMethod()
@@ -142,24 +166,30 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
         private void StartSession()
         {
-            WorkSession session = StartAWorkSession.Handle(new StartAWorkSessionCommand());
-            sessionStartTime = session.Date;
-            timer.Start();
-            SwitchButtonImageUri = PAUSE_IMAGE;
-            SoundPlayer.Play();
-            PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
-            IsSessionInProgress = true;
+            if (!IsSessionInProgress)
+            {
+                WorkSession session = StartAWorkSession.Handle(new StartAWorkSessionCommand());
+                sessionStartTime = session.Date;
+                timer.Start();
+                SwitchButtonImageUri = PAUSE_IMAGE;
+                SoundPlayer.Play();
+                PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
+                IsSessionInProgress = true;
+            }
         }
 
-        private void StopSession()
+        public void StopSession()
         {
-            _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
-            timer.Stop();
-            SwitchButtonImageUri = PLAY_IMAGE;
-            DaySessionsTimer = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
-            PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
-            SystemSounds.Beep.Play();
-            IsSessionInProgress = false;
+            if (IsSessionInProgress)
+            {
+                _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
+                timer.Stop();
+                SwitchButtonImageUri = PLAY_IMAGE;
+                RefreshDaySessionsTimer();
+                PropertyChanged(this, new PropertyChangedEventArgs("SwitchButtonImageUri"));
+                SystemSounds.Beep.Play();
+                IsSessionInProgress = false;
+            }
         }
 
         private void ApplicationClosingMethod(EventArgs obj)
@@ -168,14 +198,6 @@ namespace TimeClock.infrastructure.ui.ViewModel
             {
                 _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
                 _ = MessageBox.Show("Votre session de travail en cours vient d'être terminée.", Properties.Resources.AppName);
-            }
-        }
-
-        internal void StopSessionIfNeeded()
-        {
-            if (IsSessionInProgress)
-            {
-                StopSession();
             }
         }
     }
