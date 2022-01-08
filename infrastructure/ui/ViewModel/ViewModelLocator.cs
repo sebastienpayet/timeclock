@@ -38,16 +38,19 @@ namespace TimeClock.ViewModel
     /// </summary>
     public class ViewModelLocator
     {
-        readonly Mutex mutex;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public readonly Mutex mutex;
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
         public ViewModelLocator()
         {
+            Logger.Info("starting TimeClock application");
             mutex = new Mutex(true, "TimeClockInstance", out bool isnew);
             if (!isnew)
             {
-                _ = MessageBox.Show("TimeClock est déjà en cours d'exécution.");
+                NotifyUserMethod(new NotificationMessage("TimeClock est déjà en cours d'exécution."));
                 Environment.Exit(0);
             }
 
@@ -71,25 +74,11 @@ namespace TimeClock.ViewModel
 
         }
 
-        private void App_SessionEnding(object sender, SessionEndingCancelEventArgs e)
-        {
-            // Ask the user if they want to allow the session to end
-            string msg = string.Format("{0}. End session?", e.ReasonSessionEnding);
-            MessageBoxResult result = MessageBox.Show(msg, "Session Ending", MessageBoxButton.YesNo);
-
-            // End session, if specified
-            if (result == MessageBoxResult.No)
-            {
-                e.Cancel = true;
-            }
-        }
-
         public MainViewModel MainViewModel => ServiceLocator.Current.GetInstance<MainViewModel>();
-
 
         private void NotifyUserMethod(NotificationMessage message)
         {
-            _ = MessageBox.Show(message.Notification);
+            _ = MessageBox.Show(message.Notification, Properties.Resources.AppName, MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
         }
 
         public static void Cleanup()

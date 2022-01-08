@@ -13,6 +13,7 @@ namespace TimeClock.infrastructure.exporter.excelExporter
 {
     public class ExcelExporter : IExporter
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public GetSessionsTimeForADay GetSessionsTimeForADay { get; private set; }
         private readonly IWorkSessionRepository _workSessionRepository;
@@ -25,8 +26,10 @@ namespace TimeClock.infrastructure.exporter.excelExporter
 
         public void ExportFromAReferenceDate(DateTime date)
         {
+            
             string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeClock";
             string filePath = folderPath + $"\\TimeClock_Export_{DateTime.Now:dd-MM-yyyy-HHmmss}.xlsx";
+            Logger.Info($"starting Excel export to {filePath}");
             _ = Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
             using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
@@ -42,11 +45,13 @@ namespace TimeClock.infrastructure.exporter.excelExporter
                 workbook.Write(fs);
             }
 
+            Logger.Info("Export done");
             SystemUtils.OpenExplorerOnFolder(folderPath);
         }
 
         private void ExportMonthSheet(IWorkbook workbook, DateTime refDate)
         {
+            Logger.Info($"creating sheet for refDate {refDate}");
             ISheet excelSheet = workbook.CreateSheet(refDate.ToString("MMMM yyyy"));
             excelSheet.ProtectSheet(Guid.NewGuid().ToString("n"));
 
@@ -89,6 +94,7 @@ namespace TimeClock.infrastructure.exporter.excelExporter
             excelSheet.AutoSizeColumn(0);
             excelSheet.AutoSizeColumn(1);
             excelSheet.AutoSizeColumn(2);
+            Logger.Info($"creating sheet for refDate {refDate} done");
         }
     }
 }

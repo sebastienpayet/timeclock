@@ -14,6 +14,7 @@ namespace TimeClock
     {
         private NotifyIcon notifyIcon;
         private ContextMenu contextMenu;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public MainWindow()
         {
@@ -34,12 +35,14 @@ namespace TimeClock
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            Logger.Debug("Window Closing intecepted");
             e.Cancel = true;
             Hide();
         }
 
         protected override void OnClosed(EventArgs e)
         {
+            Logger.Info("Killing notification icon");
             notifyIcon.Icon.Dispose();
             notifyIcon.Dispose();
             base.OnClosed(e);
@@ -48,6 +51,7 @@ namespace TimeClock
 
         private void SetWindowLocation()
         {
+            Logger.Info("Setting up window location");
             // first open windows location
             WindowStartupLocation = WindowStartupLocation.Manual;
             Left = SystemParameters.WorkArea.Width - Width;
@@ -56,6 +60,7 @@ namespace TimeClock
 
         private void SetNotificationIcon()
         {
+            Logger.Info("Setting up notification Icon");
             // context menu setup
             contextMenu = new ContextMenu();
             _ = contextMenu.MenuItems.Add("&Ouvrir");

@@ -15,6 +15,7 @@ namespace TimeClock.infrastructure.util
 
     public class SystemUtils
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         [DllImport("User32.dll")]
         private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
@@ -33,13 +34,21 @@ namespace TimeClock.infrastructure.util
 
         internal static void ConfigureAutoStart()
         {
+            Logger.Info("auto start checkup");
+            string autoStartKey = "TimeClockStatupWithWindows";
             // auto start configuration
             RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            rkApp.SetValue("TimeClockStatupWithWindows", System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (rkApp.GetValue(autoStartKey) == null)
+            {
+                Logger.Info("Setting up auto start");
+                rkApp.SetValue(autoStartKey, System.Reflection.Assembly.GetExecutingAssembly().Location);
+            } 
+            
         }
 
         public static void OpenExplorerOnFolder(string folderPath)
         {
+            Logger.Info($"Open up file explorer on {folderPath}");
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 Arguments = folderPath,

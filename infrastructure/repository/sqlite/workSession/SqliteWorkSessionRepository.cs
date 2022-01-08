@@ -10,6 +10,7 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
     public class SqliteWorkSessionRepository : IWorkSessionRepository
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly TimeClockContext timeClockContext;
 
         public SqliteWorkSessionRepository(TimeClockContext timeClockContext)
@@ -24,6 +25,7 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
         public List<WorkSession> FindAllOfTheDay(DateTime date)
         {
+            Logger.Debug("SQLite Worksession FindAllOfTheDay");
             return timeClockContext.WorkSessions.Where(session =>
             session.Date.Year == date.Year && session.Date.DayOfYear == date.DayOfYear
             ).ToList();
@@ -31,6 +33,7 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
         public List<WorkSession> FindAllOfTheWeek(DateTime refDate)
         {
+            Logger.Debug("SQLite Worksession FindAllOfTheWeek");
             return timeClockContext.WorkSessions.Where(session =>
             DateUtils.IsInTheSameWeek(session.Date, refDate)
             ).ToList();
@@ -43,6 +46,8 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
         public List<WorkSession> FindDistinctOneByMonth(int numberOfMonthesInThePast)
         {
+            Logger.Debug("SQLite Worksession FindDistinctOneByMonth");
+
             DateTime minDate = DateTime.Now.AddMonths(-numberOfMonthesInThePast);
             minDate = new DateTime(minDate.Year, minDate.Month, 1, 0, 0, 0);
 
@@ -55,6 +60,8 @@ namespace TimeClock.infrastructure.repository.sqlLite.workSession
 
         public WorkSession Save(WorkSession entity)
         {
+            Logger.Debug("SQLite Worksession saving");
+
             _ = timeClockContext.WorkSessions.Add(entity);
             _ = timeClockContext.SaveChanges();
             return entity;

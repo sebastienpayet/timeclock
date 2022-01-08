@@ -6,6 +6,7 @@ namespace TimeClock.business.useCase.stopAWorkSession
 {
     public class StopAWorkSession : IUseCase<WorkSession, StopAWorkSessionCommand>
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IWorkSessionRepository _workSessionRepository;
 
         public StopAWorkSession(IWorkSessionRepository workSessionRepository)
@@ -15,8 +16,10 @@ namespace TimeClock.business.useCase.stopAWorkSession
 
         public WorkSession Handle(StopAWorkSessionCommand command)
         {
-            WorkSession newSession = new WorkSession(WorkSessionType.STOP);
-            return _workSessionRepository.Save(newSession);
+            Logger.Info("StopAWorkSession use case triggered");
+            WorkSession newSession = _workSessionRepository.Save(new WorkSession(WorkSessionType.STOP));
+            Logger.Info("Session stopped");
+            return newSession;
         }
     }
 }

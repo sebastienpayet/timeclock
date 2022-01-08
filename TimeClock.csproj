@@ -28,7 +28,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>9</ApplicationRevision>
+    <ApplicationRevision>10</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -264,7 +264,6 @@
     <Compile Include="business\useCase\stopAWorkSession\StopAWorkSession.cs" />
     <Compile Include="business\useCase\stopAWorkSession\StopAWorkSessionCommand.cs" />
     <Compile Include="infrastructure\exporter\excelExporter\ExcelExporter.cs" />
-    <Compile Include="infrastructure\exporter\excelExporter\UserDetails.cs" />
     <Compile Include="infrastructure\repository\inMemory\workSession\InMemoryWorkSessionRepository.cs" />
     <Compile Include="infrastructure\repository\sqlite\TimeClockContext.cs" />
     <Compile Include="infrastructure\repository\sqlite\workSession\SqliteWorkSessionRepository.cs" />
@@ -305,6 +304,13 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="nlog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
