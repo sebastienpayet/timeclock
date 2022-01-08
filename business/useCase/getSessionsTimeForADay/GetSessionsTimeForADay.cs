@@ -42,8 +42,10 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
                 {
                     // a work session has been started but not stopped
                     // create a virtual stop session at start date + 1 second, session time is lost
+                    Logger.Error("A Stop session is missing, Timeclock has been stop incorrectly");
                     stopSession = new WorkSession(WorkSessionType.STOP, workSessions[i].Date.AddSeconds(1));
                     _workSessionRepository.Save(stopSession);
+                    Logger.Warn("Virtual session stop has been created 1 second after last START, session time has been lost");
                 }
 
                 if (startSession.Type != WorkSessionType.START || stopSession.Type != WorkSessionType.STOP)
