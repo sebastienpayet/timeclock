@@ -35,7 +35,7 @@ namespace TimeClock
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            Logger.Debug("Window Closing intecepted");
+            Logger.Debug("Window Closing intercepted");
             e.Cancel = true;
             Hide();
         }

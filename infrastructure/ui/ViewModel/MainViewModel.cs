@@ -30,7 +30,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
         // view bindings
         public new event PropertyChangedEventHandler PropertyChanged;
         public string SwitchButtonImageUri { get; private set; }
-        
+
         // CDI
         public StartAWorkSession StartAWorkSession { get; private set; }
         public StopAWorkSession StopAWorkSession { get; private set; }
@@ -71,9 +71,6 @@ namespace TimeClock.infrastructure.ui.ViewModel
             // init timer
             viewRefreshTimer = BuildRefreshTimer();
 
-            // init watch on power change
-            SystemEvents.PowerModeChanged += OnPowerChange;
-
             // init current day timer value
             _ = Application.Current.Dispatcher.Invoke(
             DispatcherPriority.ApplicationIdle,
@@ -81,26 +78,6 @@ namespace TimeClock.infrastructure.ui.ViewModel
             {
                 RefreshDaySessionsDisplay();
             }));
-        }
-
-
-
-        private void OnPowerChange(object s, PowerModeChangedEventArgs e)
-        {
-            Logger.Info($"PowerChange event triggered with {e.Mode}");
-            switch (e.Mode)
-            {
-                case PowerModes.Resume:
-                    RefreshDaySessionsDisplay();
-                    break;
-                case PowerModes.Suspend:
-                    StopSession();
-                    break;
-                case PowerModes.StatusChange:
-                default:
-                    // do nothing
-                    break;
-            }
         }
 
         private DispatcherTimer BuildRefreshTimer()
@@ -112,6 +89,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
 
                 if (SystemUtils.GetIdleTime() >= MAX_IDLE_TIME_IN_SECONDS)
                 {
+                    Logger.Info($"User inactivity detected : {MAX_IDLE_TIME_IN_SECONDS} seconds");
                     StopSession();
                     Messenger.Default.Send<NotificationMessage>(new NotificationMessage("Votre session de travail à été arrêtée pour cause d'inactivité."));
                 }
@@ -121,13 +99,13 @@ namespace TimeClock.infrastructure.ui.ViewModel
             return timer;
         }
 
-        private void RefreshDaySessionsDisplay()
+        public void RefreshDaySessionsDisplay()
         {
             DaySessionsTimer = FormatUtils.BuildTimerString(GetSessionsTimeForADay.Handle(new GetSessionsTimeForADayCommand(DateTime.Now)));
             Logger.Info("Day Time refreshed");
         }
 
-        public string CurrentSessionTimer 
+        public string CurrentSessionTimer
         {
             set
             {
