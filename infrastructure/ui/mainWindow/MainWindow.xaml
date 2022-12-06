@@ -10,7 +10,6 @@
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
         VerticalAlignment="Center" HorizontalAlignment="Center" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="Manual" 
         ShowInTaskbar="False" WindowStyle="ThreeDBorderWindow"
-        
         >
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo/>
@@ -30,6 +29,9 @@
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
             <cmd:EventToCommand Command="{Binding WindowClosingCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
 </Window>

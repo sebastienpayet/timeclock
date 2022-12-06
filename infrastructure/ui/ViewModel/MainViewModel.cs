@@ -2,6 +2,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Win32;
+using Org.BouncyCastle.Tls;
 using System;
 using System.ComponentModel;
 using System.Media;
@@ -26,6 +27,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
         public ICommand ExportDataCommand => new RelayCommand(ExportDataMethod);
         public ICommand SwitchTimerCommand => new RelayCommand(SwitchTimerMethod);
         public ICommand WindowClosingCommand => new RelayCommand<EventArgs>(ApplicationClosingMethod);
+        public ICommand LoadedCommand => new RelayCommand(Main_Loaded);
 
         // view bindings
         public new event PropertyChangedEventHandler PropertyChanged;
@@ -40,7 +42,7 @@ namespace TimeClock.infrastructure.ui.ViewModel
         // internal constants
         private const string PAUSE_IMAGE = "pack://application:,,,/Resources/pause-button.png";
         private const string PLAY_IMAGE = "pack://application:,,,/Resources/play-button.png";
-        private const int MAX_IDLE_TIME_IN_SECONDS = 600;
+        private const int MAX_IDLE_TIME_IN_SECONDS = 1800; // 30 minutes
         private readonly SoundPlayer SoundPlayer = new SoundPlayer(Properties.Resources.button_15);
 
         // internal variables
@@ -194,6 +196,11 @@ namespace TimeClock.infrastructure.ui.ViewModel
                 _ = StopAWorkSession.Handle(new StopAWorkSessionCommand());
                 Messenger.Default.Send<NotificationMessage>(new NotificationMessage("Votre session de travail en cours vient d'être terminée."));
             }
+        }
+
+        public void Main_Loaded()
+        {
+            SwitchTimerMethod();
         }
     }
 }

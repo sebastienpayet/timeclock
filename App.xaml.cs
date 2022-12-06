@@ -32,7 +32,6 @@ namespace TimeClock
             }
         }
 
-
         private void App_SessionEnding(object sender, SessionEndingCancelEventArgs e)
         {
             Logger.Info("Windows session ending detected");

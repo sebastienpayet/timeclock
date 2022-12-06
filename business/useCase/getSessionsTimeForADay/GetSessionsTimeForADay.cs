@@ -73,7 +73,7 @@ namespace TimeClock.business.useCase.getSessionsTimeForADay
                 }
 
                 // if the last session of the day is a start, load the next session of the next day
-                if (workSessions.Last().Type == WorkSessionType.START)
+                if (workSessions.Count > 0 && workSessions.Last().Type == WorkSessionType.START)
                 {
                     Logger.Warn("last session of the day is a start");
                     List<WorkSession> nextDayworkSessions = _workSessionRepository.FindAllOfTheDay(date.AddDays(1)).OrderBy(session => session.Date).ToList();
